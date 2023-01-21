@@ -6,7 +6,7 @@
 
 #ifndef NDEBUG
 #define dump(clas) (clas).dumpInside (#clas, __FILE__, __FUNCTION__, __LINE__)
-#define nsdump(clas) (clas).dumpInside (#clas, __FILE__, __FUNCTION, __LINE__, true)
+#define nsdump(clas, func) (clas).dumpInside (#clas, __FILE__, __FUNCTION, __LINE__, func)
 #else
 #define dump(clas) ;
 #define nsdump(clas) ;
@@ -212,7 +212,7 @@ class Stack {
         countHash ();
     }
 
-    void dumpInside (const char* name, const char* fileName, const char* funcName, size_t line, bool nonStandartElem = false) {
+    void dumpInside (const char* name, const char* fileName, const char* funcName, size_t line, void dumpFunc (elem_t* obj) = NULL) {
 
         flogprintf ("<pre>" "In file %s, function %s, line %llu, Stack named \"%s\" was dumped :<br>",
                     fileName, funcName, line, name);
@@ -259,7 +259,7 @@ class Stack {
             for (int i = 0; i < size; i++) {
 
                 flogprintf ( "%*d : ", sizeLog10, i);
-                if (nonStandartElem) data[i].dumpAsStackElem ();
+                if (dumpFunc != NULL) dumpFunc (data + i);
                 else flogprintf (getFormat (elem_t), data[i])
                 flogprintf ("<br>");
             }
