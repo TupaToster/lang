@@ -12,9 +12,10 @@
 #define nsdump(clas) ;
 #endif
 
+#define Pow2After_size(size) (1 << ((size_t) ceil (log2 (size))))
 
 template<typename elem_t>
-class Stack {
+class Vector {
 
     static constexpr unsigned int       CANL      = 0xDEADBEEF; ///< Left cannary of a structure
     static constexpr unsigned int       CANR      = 0xD34DB33F; ///< Right cannary of a structure
@@ -55,10 +56,10 @@ class Stack {
         if (var == NULL) return;
 
         switch(sizeof (varType)) {
-            case 1 : *((unsigned char*     ) var)      = POISON1; break;
-            case 2 : *((unsigned short*    ) var)      = POISON2; break;
-            case 4 : *((unsigned int*      ) var)      = POISON4; break;
-            case 8 : *((unsigned long long*) var)      = POISON8; break;
+            case 1 : *((unsigned char*     ) var) = POISON1; break;
+            case 2 : *((unsigned short*    ) var) = POISON2; break;
+            case 4 : *((unsigned int*      ) var) = POISON4; break;
+            case 8 : *((unsigned long long*) var) = POISON8; break;
 
             default:
                 memset (var, POISON1, sizeof (varType));
@@ -193,35 +194,9 @@ class Stack {
 
     }
 
-    //non standard part
-
-    void resize () {
-
-        if (cap > 4 and size < cap * 3 / 8) {
-
-            data = (elem_t*) calloc (cap / 2 * sizeof (elem_t) + 2 * sizeof (unsigned int), 1);
-            assert (data != NULL);
-            cap /= 2;
-        }
-        else if (size == cap) {
-
-            data = (elem_t*) calloc (cap * 2 * sizeof (elem_t) + 2 * sizeof (unsigned int), 1);
-            assert (data != NULL);
-            cap *= 2;
-        }
-        else return;
-
-        memcpy (data, dataCanL, size * sizeof (elem_t) + sizeof (unsigned int));
-        free (dataCanL);
-        dataCanL = (unsigned int*) data;
-        data = (elem_t*) (dataCanL + 1);
-        dataCanR = (unsigned int*) (data + cap);
-        *dataCanR = CANR;
-    }
-
     public:
 
-    Stack () : canL (CANL), canR (CANR), hash (0), errCode (ok), size (0), cap (4) {
+    Vector (int _size = 0) : canL (CANL), canR (CANR), hash (0), errCode (ok), size (_size), cap (__max (4, Pow2After_size (_size))) {
 
         dataCanL = (unsigned int*) calloc (cap * sizeof (elem_t) + 2 * sizeof (unsigned int), 1);
         assert (dataCanL != NULL);
@@ -238,9 +213,9 @@ class Stack {
         countHash ();
     }
 
-    void dumpInside (const char* name, const char* fileName, const char* funcName, size_t line, void (*dumpFunc) (elem_t*) = NULL) {
+    void dumpInside (const char* name, const char* fileName, const char* funcName, size_t line, void (*dumpFunc) (elem_t* obj) = NULL) {
 
-        flogprintf ("<pre>" "In file %s, function %s, line %llu, Stack named \"%s\" was dumped :<br>",
+        flogprintf ("<pre>" "In file %s, function %s, line %llu, Vector named \"%s\" was dumped :<br>",
                     fileName, funcName, line, name);
 
         flogprintf ("\t" "Errors : <br>");
@@ -315,28 +290,69 @@ class Stack {
         }
     }
 
-    void push (elem_t val, void (*cpy) (elem_t* dst, elem_t* src) = NULL) {
+    void resize (size_t _size) {
 
         errCheck ();
-        resize ();
 
-        if (cpy != NULL) cpy (data + size, &val);
-        else data[size] = val;
-        size++;
+        if (_size > cap * 3 / 8 and _size <= cap) {
 
-        countHash ();
+            size = _size;
+            return;
+        }
+
+        data = (elem_t*) calloc (__max (4, Pow2After_size (_size) ) * sizeof (elem_t) + 2 * sizeof (unsigned int), 1);
+        assert (data != NULL);
+        memcpy (data, dataCanL, __min (cap, __max (Pow2After_size (_size), 4)) * sizeof (elem_t) + sizeof (unsigned int));
+
+        cap = __max (4, Pow2After_size (_size));
+        size = _size;
+
+        free (dataCanL);
+
+        dataCanL = (unsigned int*) data;
+        data = (elem_t*) (dataCanL + 1);
+
+        dataCanR = (unsigned int*) (data + cap);
+        *dataCanR = CANR;
+
+        errCheck ();
     }
 
-    elem_t pop () {
+    elem_t get (int index = 0) {
+
+        return *(data + (size + index % size) % size);
+    }
+
+    void set (size_t index, elem_t elem, void (*cpyFunc) (elem_t* dst, const elem_t* src) = NULL) {
 
         errCheck ();
 
-        elem_t retVal = data[size];
-        setPoison (data + size);
-        size--;
+        if (cpyFunc != NULL) cpyFunc (data + (size + index) % size, &elem);
+        else data[(size + index) % size] = elem;
 
-        resize ();
-        countHash ();
-        return retVal;
+        errCheck ();
+    }
+
+    void change (size_t index, void (*action) (elem_t* elem)) {
+
+        assert (action != NULL);
+
+        errCheck ();
+
+        elem_t* ptr = data + (size + index % size) % size;
+
+        action (ptr);
+
+        errCheck ();
+    }
+
+    size_t _size () {
+
+        return size;
+    }
+
+    size_t _cap () {
+
+        return cap;
     }
 };
