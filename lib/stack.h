@@ -6,7 +6,7 @@
 
 #ifndef NDEBUG
 #define dump(clas) (clas).dumpInside (#clas, __FILE__, __FUNCTION__, __LINE__)
-#define nsdump(clas, func) (clas).dumpInside (#clas, __FILE__, __FUNCTION, __LINE__, func)
+#define nsdump(clas, func) (clas).dumpInside (#clas, __FILE__, __FUNCTION__, __LINE__, func)
 #else
 #define dump(clas) ;
 #define nsdump(clas) ;
@@ -212,7 +212,7 @@ class Stack {
         countHash ();
     }
 
-    void dumpInside (const char* name, const char* fileName, const char* funcName, size_t line, void dumpFunc (elem_t* obj) = NULL) {
+    void dumpInside (const char* name, const char* fileName, const char* funcName, size_t line, void (*dumpFunc) (elem_t*) = NULL) {
 
         flogprintf ("<pre>" "In file %s, function %s, line %llu, Stack named \"%s\" was dumped :<br>",
                     fileName, funcName, line, name);
@@ -255,15 +255,18 @@ class Stack {
 
         if (data != NULL and !isPoison (data)) {
 
+            flogprintf ("\t" "data : <br>");
             int sizeLog10 = ceil (log10 (size));
             for (int i = 0; i < size; i++) {
 
-                flogprintf ( "%*d : ", sizeLog10, i);
+                flogprintf ( "\t\t" "data[%*d] : ", sizeLog10, i);
                 if (dumpFunc != NULL) dumpFunc (data + i);
                 else flogprintf (getFormat (elem_t), data[i])
                 flogprintf ("<br>");
             }
         }
+
+        flogprintf ("<hr>");
     }
 
     void DTOR () {
@@ -286,8 +289,8 @@ class Stack {
         }
     }
 
-    void push (elem_t t) {
+    void resize () {
 
-        data[size++] = t;
+        
     }
 };
