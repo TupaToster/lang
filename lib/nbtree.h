@@ -4,6 +4,7 @@
 #include <math.h>
 #include <assert.h>
 #include "flog.h"
+#include "vector.h"
 
 #ifndef NDEBUG
 #define dump(clas) (clas).dumpInside (#clas, __FILE__, __FUNCTION__, __LINE__)
@@ -15,8 +16,20 @@
 
 #define Pow2After_size(size) (1 << ((size_t) ceil (log2 (size))))
 
-template<typename elem_t>
-class Vector {
+struct Nod {
+
+    double val = 0;
+    Vector<Nod*> next;
+    Nod* prev = NULL;
+    int num = -1;
+
+    Nod (double _val = 0, Nod** _next = NULL, Nod* _prev = NULL, int _num = -1) : val (_val), num (_num), prev (_prev) {//<_next MUST end with a NULL element
+
+        while (_next != NULL and *_next != NULL) next.push_back (*(_next++));
+    }
+};
+
+class Tree {
 
     static constexpr unsigned int       CANL      = 0xDEADBEEF; ///< Left cannary of a structure
     static constexpr unsigned int       CANR      = 0xD34DB33F; ///< Right cannary of a structure
@@ -25,6 +38,7 @@ class Vector {
     static constexpr unsigned int       POISON4   = 0xBADC0FEE; ///< 4 byte Poison
     static constexpr unsigned long long POISON8   = 0xBADC0FEEF04DED32; ///< 8 byte Poison
     static constexpr unsigned int       MULT      = 37u; ///< Multiplier for hash
+    static constexpr unsigned int       MAX_RANKS = 500;
 
     enum errorCodes {
         ok                   = 0,    ///< All ok
@@ -44,8 +58,7 @@ class Vector {
     unsigned int   canL      = CANL; ///< left cannary of struct
     unsigned int   hash      = 0;    ///< hash value
     size_t         errCode   = ok;   ///< error code
-    elem_t*        data      = NULL; ///< Ptr to data
-    size_t         cap       = 0;
+    Nod            data;             ///< Ptr to data
     size_t         size      = 0;
     unsigned int*  dataCanL  = NULL; ///< left cannary of data
     unsigned int*  dataCanR  = NULL; ///< right cannary of data
@@ -124,8 +137,6 @@ class Vector {
 
         countHashSeg (&canL, &canR);
 
-        if (dataCanL != NULL) countHashSeg (dataCanL, dataCanR);
-
         return hash;
     }
 
@@ -195,14 +206,112 @@ class Vector {
 
     }
 
+    void TreeGraphDump (void (*dumpFunc) (Nod* val) = NULL) {
+
+        static int GraphDumpCounter = 0;
+
+        if (GraphDumpCounter == 0) system ("rm *.png");
+
+        #define picprintf(...) fprintf (picSource, __VA_ARGS__);
+
+        char srcName[] = "GraphDumpSrc.dot";
+        FILE* picSource = fopen (srcName, "w");
+
+        char picName[30] = "";
+        sprintf (picName, "GraphDump_%d.png", GraphDumpCounter);
+
+        picprintf ("digraph Tree_%d {" "\n", GraphDumpCounter);
+        picprintf ("\t" "graph [dpi = 150];" "\n");
+        picprintf ("\t" "bgcolor = \"252525\"" "\n");
+        picprintf ("\t" "rankdir = TB" "\n");
+
+        int ranks[MAX_RANKS][MAX_RANKS + 1] = {0};
+        int NodNum = 0;
+
+        errCheck ();
+
+        PrintNod (data, &NodNum, 0, picSource, ranks, dumpFunc);
+
+        countHash ();
+
+        for (int i = 0; i < MAX_RANKS and ranks[i][0] != 0; i++) {
+
+            picprintf ("\t" "{rank = same; ");
+
+            for (int j = 1; j <= ranks[i][0]; j++) picprintf (" Nod_%d;" ranks[i][j]);
+
+            picprintf ("}\n");
+        }
+
+        PrintConnections (data, picSource);
+
+        picprintf ("}");
+
+        fclose (picSource);
+
+        char command[40] = "";
+        sprintf (command, "dot -Tpng %s -o %s", srcName, picName);
+
+        system (command);
+
+        flogprintf ("<h2>Tree dump</h2><br>");
+        flogprintf ("<img src = \"%s\" style = \"width: 55%%;height: auto\"><br>");
+
+        GraphDumpCounter++;
+
+        #undef picprintf
+    }
+
+    void PrintNod (Nod* nod, int* num, int depth, FILE* picSource, int ranks[MAX_RANKS][MAX_RANKS + 1], void (*dumpFunc) (Nod* val) = NULL) {
+
+        #define picprintf(...) fprintf (picSource, __VA_ARGS__);
+
+        nod->num = *num;
+
+        ranks[depth][0]++;
+        ranks[depth][ranks[depth][0]] = *num;
+
+        picprintf ("\t" "\"Nod_%d\" [shape = \"Mrecord\", style = \"filled\", fillcolor = \"1ed5f2\", label = \"{<prev> Prev = &ltp;%p&rt; | Current = &lt;%p&rt; | Value = &lt;", nod->num, nod->prev, nod);
+        if (dumpFunc != NULL) dumpFunc (nod);
+        else picprintf (getFormat (nod->val), nod->val);
+
+        picprintf ("&rt; | {next[%d] : |", nod->next._size());
+
+        for (int i = 0; i < nod->next._size(); i++) {
+
+            picprintf ("{ [%d] | <next_%d>&lt;%p&rt; }", i, i, *nod->next.get(i));
+            if (i != nod->next._size() - 1) picprintf (" | ");
+        }
+
+        *nod += 1;
+
+        for (int i = 0; i < nod->next._size(); i++) PrintNod (nod->next[i], num, depth+1, picSource, ranks);
+
+        #undef picprintf
+
+    }
+
+    void PrintConnections (Nod* nod, FILE* picSource) {
+
+        #define picprintf(...) fprintf (picSource, __VA_ARGS__);
+
+        for (int i = 0; i < nod->next._size(); i++) {
+
+            picprintf ("\t" "\"Nod_%d\":next_%d -> \"Nod_%d\":prev [color = \"#36f70f\"];\n", nod->num, i, nod->next.get(i)->num);
+            PrintConnections (*nod->next.get(i), picSource);
+        }
+
+        #undef picprintf
+    }
+
     public:
 
-    Vector (int _size = 0) : canL (CANL), canR (CANR), hash (0), errCode (ok), size (_size), cap (__max (4, Pow2After_size (_size))) {
+    Tree (int _size = 1) : canL (CANL), canR (CANR), hash (0), errCode (ok), size (_size) {
 
-        dataCanL = (unsigned int*) calloc (cap * sizeof (elem_t) + 2 * sizeof (unsigned int), 1);
+        dataCanL = (unsigned int*) calloc (cap * sizeof (Nod) + 2 * sizeof (unsigned int), 1);
         assert (dataCanL != NULL);
 
-        data = (elem_t*) (dataCanL + 1);
+        data = (Nod*) (dataCanL + 1);
         assert (data != NULL);
 
         dataCanR = (unsigned int*) (data + cap);
@@ -214,9 +323,9 @@ class Vector {
         countHash ();
     }
 
-    void dumpInside (const char* name, const char* fileName, const char* funcName, size_t line, void (*dumpFunc) (elem_t* obj) = NULL) {
+    void dumpInside (const char* name, const char* fileName, const char* funcName, size_t line, void (*dumpFunc) (Nod* obj) = NULL) {
 
-        flogprintf ("<pre>" "In file %s, function %s, line %llu, Vector named \"%s\" was dumped :<br>",
+        flogprintf ("<pre>" "In file %s, function %s, line %llu, Tree named \"%s\" was dumped :<br>",
                     fileName, funcName, line, name);
 
         flogprintf ("\t" "Errors : <br>");
@@ -257,15 +366,7 @@ class Vector {
 
         if (data != NULL and !isPoison (data)) {
 
-            flogprintf ("\t" "data : <br>");
-            int sizeLog10 = ceil (log10 (size));
-            for (int i = 0; i < size; i++) {
-
-                flogprintf ( "\t\t" "data[%*d] : ", sizeLog10, i);
-                if (dumpFunc != NULL) dumpFunc (data + i);
-                else flogprintf (getFormat (elem_t), data[i])
-                flogprintf ("<br>");
-            }
+            TreeGraphDump ();
         }
 
         flogprintf ("<hr>");
@@ -290,87 +391,4 @@ class Vector {
             setPoison (&dataCanR);
         }
     }
-
-    void resize (size_t _size) {
-
-        errCheck ();
-
-        if (_size > cap * 3 / 8 and _size <= cap) {
-
-            size = _size;
-            return;
-        }
-
-        data = (elem_t*) calloc (__max (4, Pow2After_size (_size) ) * sizeof (elem_t) + 2 * sizeof (unsigned int), 1);
-        assert (data != NULL);
-        memcpy (data, dataCanL, __min (cap, __max (Pow2After_size (_size), 4)) * sizeof (elem_t) + sizeof (unsigned int));
-
-        cap = __max (4, Pow2After_size (_size));
-        size = _size;
-
-        free (dataCanL);
-
-        dataCanL = (unsigned int*) data;
-        data = (elem_t*) (dataCanL + 1);
-
-        dataCanR = (unsigned int*) (data + cap);
-        *dataCanR = CANR;
-
-        countHash ();
-    }
-
-    const elem_t* get (int index = 0) {
-
-        return (data + (size + index % size) % size);
-    }
-
-    void set (size_t index, elem_t elem, void (*cpyFunc) (elem_t* dst, const elem_t* src) = NULL) {
-
-        errCheck ();
-
-        if (cpyFunc != NULL) cpyFunc (data + (size + index) % size, &elem);
-        else data[(size + index) % size] = elem;
-
-        countHash ();
-    }
-
-    void change (size_t index, void (*action) (elem_t* elem)) {
-
-        assert (action != NULL);
-
-        errCheck ();
-
-        elem_t* ptr = data + (size + index % size) % size;
-
-        action (ptr);
-
-        countHash ();
-    }
-
-    size_t _size () {
-
-        return size;
-    }
-
-    size_t _cap () {
-
-        return cap;
-    }
-
-    void push_back (elem_t elem, void (*cpy)(elem_t* dst, const elem_t* src) = NULL) {
-
-        resize (size + 1);
-        set (size - 1, elem, cpy);
-    }
-
-    void insert (size_t index, elem_t elem, void (*cpy)(elem_t* dst, const elem_t* src) = NULL) {
-
-        resize (size + 1);
-        for (int i = size - 1; i > index; i--) {
-
-            set (i, *get (i - 1));
-        }
-        set (index, elem, cpy);
-    }
-
 };
