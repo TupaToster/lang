@@ -197,7 +197,7 @@ class Vector {
 
     public:
 
-    Vector (int _size = 0) : canL (CANL), canR (CANR), hash (0), errCode (ok), size (_size), cap (__max (4, Pow2After_size (_size))) {
+    Vector (int _size = 0, const elem_t* _data = NULL, void (*assign) (elem_t* dst, const elem_t* src) = NULL) : canL (CANL), canR (CANR), hash (0), errCode (ok), size (_size), cap (__max (4, Pow2After_size (_size))) {
 
         dataCanL = (unsigned int*) calloc (cap * sizeof (elem_t) + 2 * sizeof (unsigned int), 1);
         assert (dataCanL != NULL);
@@ -210,6 +210,15 @@ class Vector {
 
         *dataCanL = CANL;
         *dataCanR = CANR;
+
+        if (_data != NULL and _size != 0) {
+
+            for (int i = 0; i < _size; i++) {
+
+                if (assign != NULL) assign (data + i, _data + i);
+                else data[i] = _data[i];
+            }
+        }
 
         countHash ();
     }
@@ -324,11 +333,11 @@ class Vector {
         return (data + (size + index % size) % size);
     }
 
-    void set (size_t index, elem_t elem, void (*cpyFunc) (elem_t* dst, const elem_t* src) = NULL) {
+    void set (size_t index, elem_t elem, void (*assign) (elem_t* dst, const elem_t* src) = NULL) {
 
         errCheck ();
 
-        if (cpyFunc != NULL) cpyFunc (data + (size + index) % size, &elem);
+        if (assign != NULL) assign (data + (size + index) % size, &elem);
         else data[(size + index) % size] = elem;
 
         countHash ();
@@ -357,20 +366,20 @@ class Vector {
         return cap;
     }
 
-    void push_back (elem_t elem, void (*cpy)(elem_t* dst, const elem_t* src) = NULL) {
+    void push_back (elem_t elem, void (*assign)(elem_t* dst, const elem_t* src) = NULL) {
 
         resize (size + 1);
-        set (size - 1, elem, cpy);
+        set (size - 1, elem, assign);
     }
 
-    void insert (size_t index, elem_t elem, void (*cpy)(elem_t* dst, const elem_t* src) = NULL) {
+    void insert (size_t index, elem_t elem, void (*assign)(elem_t* dst, const elem_t* src) = NULL) {
 
         resize (size + 1);
         for (int i = size - 1; i > index; i--) {
 
             set (i, *get (i - 1));
         }
-        set (index, elem, cpy);
+        set (index, elem, assign);
     }
 
 };

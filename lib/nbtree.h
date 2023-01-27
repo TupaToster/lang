@@ -23,9 +23,14 @@ struct Nod {
     Nod* prev = NULL;
     int num = -1;
 
-    Nod (double _val = 0, Nod** _next = NULL, Nod* _prev = NULL, int _num = -1) : val (_val), num (_num), prev (_prev) {//<_next MUST end with a NULL element
+    Nod (double _val = 0, Vector<Nod*> next = Vector<Nod*>(0), Nod* prev = NULL, int num = -1) 
 
-        while (_next != NULL and *_next != NULL) next.push_back (*(_next++));
+    void DTOR () {
+
+        val = 0;
+        next.DTOR();
+        prev = NULL;
+        num = -1;
     }
 };
 
@@ -39,6 +44,7 @@ class Tree {
     static constexpr unsigned long long POISON8   = 0xBADC0FEEF04DED32; ///< 8 byte Poison
     static constexpr unsigned int       MULT      = 37u; ///< Multiplier for hash
     static constexpr unsigned int       MAX_RANKS = 500;
+    static constexpr unsigned int       MIN_CAP   = 4;
 
     enum errorCodes {
         ok                   = 0,    ///< All ok
@@ -58,10 +64,9 @@ class Tree {
     unsigned int   canL      = CANL; ///< left cannary of struct
     unsigned int   hash      = 0;    ///< hash value
     size_t         errCode   = ok;   ///< error code
-    Nod            data;             ///< Ptr to data
+    size_t         cap       = 0;
     size_t         size      = 0;
-    unsigned int*  dataCanL  = NULL; ///< left cannary of data
-    unsigned int*  dataCanR  = NULL; ///< right cannary of data
+    Nod            data;             ///< Ptr to data
     unsigned int   canR      = CANR; ///< right cannary of struct
 
     template<typename varType>
@@ -124,7 +129,7 @@ class Tree {
         assert (right != NULL);
         assert (left <= right);
 
-        for (; left <= right; left++) {
+        for (; left <= right; left = ((char*) left) + 1) {
 
             hash += ((unsigned int) * (char*) left);
             hash *= MULT;
@@ -135,7 +140,8 @@ class Tree {
 
         hash = 0;
 
-        countHashSeg (&canL, &canR);
+        countHashSeg (&canL, &errCode);
+        countHashSeg (&canR, &canR);
 
         return hash;
     }
@@ -163,20 +169,10 @@ class Tree {
         if (isPoison (&canL    )
         or  isPoison (&canR    )
         or  isPoison (&data    )
-        or  isPoison (&dataCanL)
-        or  isPoison ( dataCanL)
-        or  isPoison (&dataCanR)
-        or  isPoison ( dataCanR)
         or  isPoison (&hash    )) errCode |= POISON_ACCESS;
 
         if      (canL != CANL      ) errCode |= BAD_CAN_L;
         if      (canR != CANR      ) errCode |= BAD_CAN_R;
-        if      (dataCanL == NULL  ) errCode |= NULL_data_CAN_L_PTR;
-        else if (*dataCanL != CANL ) errCode |= BAD_data_CAN_L;
-        if      (dataCanR == NULL  ) errCode |= NULL_data_CAN_R_PTR;
-        else if (*dataCanR != CANR ) errCode |= BAD_data_CAN_R;
-        if      (data == NULL      ) errCode |= NULL_data_PTR;
-
         countHash ();
 
         return errCode;
@@ -230,7 +226,7 @@ class Tree {
 
         errCheck ();
 
-        PrintNod (data, &NodNum, 0, picSource, ranks, dumpFunc);
+        PrintNod (&data, &NodNum, 0, picSource, ranks, dumpFunc);
 
         countHash ();
 
@@ -238,12 +234,12 @@ class Tree {
 
             picprintf ("\t" "{rank = same; ");
 
-            for (int j = 1; j <= ranks[i][0]; j++) picprintf (" Nod_%d;" ranks[i][j]);
+            for (int j = 1; j <= ranks[i][0]; j++) picprintf (" Nod_%d;", ranks[i][j]);
 
             picprintf ("}\n");
         }
 
-        PrintConnections (data, picSource);
+        PrintConnections (&data, picSource);
 
         picprintf ("}");
 
@@ -283,9 +279,9 @@ class Tree {
             if (i != nod->next._size() - 1) picprintf (" | ");
         }
 
-        *nod += 1;
+        *num += 1;
 
-        for (int i = 0; i < nod->next._size(); i++) PrintNod (nod->next[i], num, depth+1, picSource, ranks);
+        for (int i = 0; i < nod->next._size(); i++) PrintNod (*nod->next.get (i), num, depth+1, picSource, ranks);
 
         #undef picprintf
 
@@ -297,7 +293,7 @@ class Tree {
 
         for (int i = 0; i < nod->next._size(); i++) {
 
-            picprintf ("\t" "\"Nod_%d\":next_%d -> \"Nod_%d\":prev [color = \"#36f70f\"];\n", nod->num, i, nod->next.get(i)->num);
+            picprintf ("\t" "\"Nod_%d\":next_%d -> \"Nod_%d\":prev [color = \"#36f70f\"];\n", nod->num, i, (*nod->next.get(i))->num);
             PrintConnections (*nod->next.get(i), picSource);
         }
 
@@ -305,23 +301,6 @@ class Tree {
     }
 
     public:
-
-    Tree (int _size = 1) : canL (CANL), canR (CANR), hash (0), errCode (ok), size (_size) {
-
-        dataCanL = (unsigned int*) calloc (cap * sizeof (Nod) + 2 * sizeof (unsigned int), 1);
-        assert (dataCanL != NULL);
-
-        data = (Nod*) (dataCanL + 1);
-        assert (data != NULL);
-
-        dataCanR = (unsigned int*) (data + cap);
-        assert (dataCanR != NULL);
-
-        *dataCanL = CANL;
-        *dataCanR = CANR;
-
-        countHash ();
-    }
 
     void dumpInside (const char* name, const char* fileName, const char* funcName, size_t line, void (*dumpFunc) (Nod* obj) = NULL) {
 
@@ -346,49 +325,10 @@ class Tree {
         else if ( canR      == CANR    ) flogprintf ( "ok)<br>")
         else                             flogprintf ( "NOT_OK)<br>")
 
-                                         flogprintf ( "\t" "cap      = %llu (", cap);
-        if      ( isPoison (&cap)      ) flogprintf ( "POISONED)<br>")
-        else                             flogprintf ( "ok)<br>")
-
-                                         flogprintf ( "\t" "size     = %llu (", size);
-        if      ( isPoison (&size)     ) flogprintf ( "POISONED)<br>")
-        else                             flogprintf ( "ok)<br>")
-
-                                         flogprintf ( "\t" "dataCanL = 0x%X (", *dataCanL);
-        if      (isPoison (dataCanL)   ) flogprintf ( "POISONED)<br>")
-        else if (*dataCanL == CANL     ) flogprintf ( "ok)<br>")
-        else                             flogprintf ( "NOT_OK)<br>")
-
-                                         flogprintf ( "\t" "dataCanR = 0x%X (", *dataCanR);
-        if      (isPoison (dataCanR)   ) flogprintf ( "POISONED)<br>")
-        else if (*dataCanR == CANR     ) flogprintf ( "ok)<br>")
-        else                             flogprintf ( "NOT_OK)<br>")
-
-        if (data != NULL and !isPoison (data)) {
-
-            TreeGraphDump ();
-        }
+        TreeGraphDump ();
 
         flogprintf ("<hr>");
     }
 
-    void DTOR () {
-
-        setPoison (&errCode);
-        setPoison (&canL);
-        setPoison (&canR);
-        setPoison (&hash);
-        setPoison (&size);
-        setPoison (&cap);
-
-        if (dataCanL != NULL) {
-
-            setPoison (dataCanL);
-            for (; (void*) data <= (void*) dataCanR; data++) setPoison (data);
-            free (dataCanL);
-            setPoison (&dataCanL);
-            setPoison (&data);
-            setPoison (&dataCanR);
-        }
-    }
+    Tree (size_t size = 1, )
 };
