@@ -197,7 +197,9 @@ class Vector {
 
     public:
 
-    Vector (int _size = 0, const elem_t* _data = NULL, void (*assign) (elem_t* dst, const elem_t* src) = NULL) : canL (CANL), canR (CANR), hash (0), errCode (ok), size (_size), cap (__max (4, Pow2After_size (_size))) {
+    Vector (size_t _size = 0, const elem_t* _data = NULL, void (*assign) (elem_t* dst, const elem_t* src) = NULL) : canL (CANL), canR (CANR), hash (0), errCode (ok), size (_size), cap (__max (4, Pow2After_size (_size))) {
+
+        DTOR ();
 
         dataCanL = (unsigned int*) calloc (cap * sizeof (elem_t) + 2 * sizeof (unsigned int), 1);
         assert (dataCanL != NULL);
@@ -364,6 +366,11 @@ class Vector {
     size_t _cap () {
 
         return cap;
+    }
+
+    const elem_t** _data () {
+
+        return &data;
     }
 
     void push_back (elem_t elem, void (*assign)(elem_t* dst, const elem_t* src) = NULL) {

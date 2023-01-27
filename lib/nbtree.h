@@ -23,7 +23,14 @@ struct Nod {
     Nod* prev = NULL;
     int num = -1;
 
-    Nod (double _val = 0, Vector<Nod*> next = Vector<Nod*>(0), Nod* prev = NULL, int num = -1) 
+    Nod (double _val = 0, const size_t _size = 0, Nod** _data = NULL, Nod* _prev = NULL, int _num = -1) {
+
+        DTOR ();
+        val = _val;
+        prev = _prev;
+        num = _num;
+        next = Vector<Nod*> (_size, _data);
+    }
 
     void DTOR () {
 
@@ -31,6 +38,20 @@ struct Nod {
         next.DTOR();
         prev = NULL;
         num = -1;
+    }
+
+    /// @warning Destroys a variable under dst
+    void assign (Nod* dst, Nod* src) {
+
+        assert (dst != NULL);
+        assert (src != NULL);
+
+        dst->DTOR ();
+        dst->val = src->val;
+        dst->prev = src->prev;
+        dst->num = src->num;
+
+        dst->next = Vector<Nod*> (src->next._size (), *src->next._data ());
     }
 };
 
@@ -66,7 +87,9 @@ class Tree {
     size_t         errCode   = ok;   ///< error code
     size_t         cap       = 0;
     size_t         size      = 0;
-    Nod            data;             ///< Ptr to data
+    Nod*           data;             ///< Ptr to data
+    unsigned int*  dataCanL  = NULL;
+    unsigned int*  dataCanR  = NULL;
     unsigned int   canR      = CANR; ///< right cannary of struct
 
     template<typename varType>
@@ -226,7 +249,7 @@ class Tree {
 
         errCheck ();
 
-        PrintNod (&data, &NodNum, 0, picSource, ranks, dumpFunc);
+        PrintNod (data, &NodNum, 0, picSource, ranks, dumpFunc);
 
         countHash ();
 
@@ -239,7 +262,7 @@ class Tree {
             picprintf ("}\n");
         }
 
-        PrintConnections (&data, picSource);
+        PrintConnections (data, picSource);
 
         picprintf ("}");
 
@@ -330,5 +353,53 @@ class Tree {
         flogprintf ("<hr>");
     }
 
-    Tree (size_t size = 1, )
+    Tree (Nod* _data = NULL, size_t _size = 0) : canL (CANL), cap (__max (4, Pow2After_size (_size))), size (_size), data (NULL), canR (CANR){
+
+        dataCanL = (unsigned int*) calloc (2 * sizeof (unsigned int) + cap * sizeof (Nod), 1);
+        assert (dataCanL != NULL);
+
+        data = (Nod*) (dataCanL + 1);
+        dataCanR = (unsigned int*) (data + cap);
+
+        int i = 0;
+        if (_data != NULL)
+            for (; i < _size; i++) {
+
+                data[i].assign (data + i, _data + i);
+            }
+
+        for (; i < cap - 1; i++) {
+
+            //Here prev points to the next free cell
+            data[i] = Nod ();
+            data[i].prev = data + i + 1;
+            data[i].num = -1;
+        }
+
+        countHash ();
+    }
+
+    void DTOR () {
+
+        setPoison (&errCode);
+        setPoison (&canL);
+        setPoison (&canR);
+        setPoison (&hash);
+        setPoison (&size);
+        setPoison (&cap);
+
+        if (dataCanL != NULL) {
+
+            setPoison (dataCanL);
+            setPoison (dataCanR);
+            for (; (void*) data < (void*) dataCanR; data++) {
+                data->DTOR ();
+                setPoison (data);
+            }
+            free (dataCanL);
+            setPoison (&dataCanL);
+            setPoison (&data);
+            setPoison (&dataCanR);
+        }
+    }
 };
