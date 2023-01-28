@@ -19,39 +19,81 @@
 struct Nod {
 
     double val = 0;
-    Vector<Nod*> next;
+    Nod** next = NULL;
+    size_t size = 0;
+    size_t cap = 0;
     Nod* prev = NULL;
     int num = -1;
 
-    Nod (double _val = 0, const size_t _size = 0, Nod** _data = NULL, Nod* _prev = NULL, int _num = -1) {
+    void resize () {
 
-        DTOR ();
-        val = _val;
-        prev = _prev;
-        num = _num;
-        next = Vector<Nod*> (_size, _data);
+        if (size > cap * 3 / 8 and size < cap) return;
+
+        Nod** temp = NULL;
+
+        if (cap > 4 and size <= cap * 3 / 8) temp = (Nod**) calloc (cap * 3 / 8, sizeof (Nod**));
+        else if (size == cap) temp = (Nod*) calloc (cap * 2, sizeof (Nod*));
+
+        memcpy (temp, next, size * sizeof (Nod**));
+        free (next);
+        next = temp;
     }
 
-    void DTOR () {
+    void push_back (Nod* val) {
 
-        val = 0;
-        next.DTOR();
-        prev = NULL;
-        num = -1;
+        resize ();
+
+        next[size] = val;
+        size++;
     }
 
-    /// @warning Destroys a variable under dst
-    void assign (Nod* dst, Nod* src) {
+    Nod* pop_back () {
 
-        assert (dst != NULL);
-        assert (src != NULL);
+        if (size == 0) return NULL;
 
-        dst->DTOR ();
-        dst->val = src->val;
-        dst->prev = src->prev;
-        dst->num = src->num;
+        Nod* temp = next[size - 1];
+        next[size - 1] = NULL;
+        size--;
 
-        dst->next = Vector<Nod*> (src->next._size (), *src->next._data ());
+        resize ();
+
+        return temp;
+    }
+
+    /// @warning Use only in extreme cases cause O(size)
+    void insert (size_t index, Nod* val) {
+
+        if (index >= size) push_back (val);
+        else {
+
+            push_back (val);
+
+            for (int i = size - 1; i > index; i--) {
+
+                Nod* temp = next[i - 1];
+                next[i - 1] = next[i];
+                next[i] = temp;
+            }
+        }
+    }
+
+    /// @warning Use only in extreme cases cause O(size)
+    Nod* erase (size_t index) {
+
+        if (size == 0) return NULL;
+
+        if (index >= size - 1) return pop_back ();
+        else {
+
+            for (int i = index; i < size - 1; i++) {
+
+                Nod* temp = next[i];
+                next[i] = next[i + 1];
+                next[i + 1] = temp;
+            }
+
+            return pop_back ();
+        }
     }
 };
 
@@ -87,7 +129,8 @@ class Tree {
     size_t         errCode   = ok;   ///< error code
     size_t         cap       = 0;
     size_t         size      = 0;
-    Nod*           data;             ///< Ptr to data
+    Nod*           vacant    = NULL;
+    Nod*           data      = NULL; ///< Ptr to data
     unsigned int*  dataCanL  = NULL;
     unsigned int*  dataCanR  = NULL;
     unsigned int   canR      = CANR; ///< right cannary of struct
@@ -353,53 +396,5 @@ class Tree {
         flogprintf ("<hr>");
     }
 
-    Tree (Nod* _data = NULL, size_t _size = 0) : canL (CANL), cap (__max (4, Pow2After_size (_size))), size (_size), data (NULL), canR (CANR){
 
-        dataCanL = (unsigned int*) calloc (2 * sizeof (unsigned int) + cap * sizeof (Nod), 1);
-        assert (dataCanL != NULL);
-
-        data = (Nod*) (dataCanL + 1);
-        dataCanR = (unsigned int*) (data + cap);
-
-        int i = 0;
-        if (_data != NULL)
-            for (; i < _size; i++) {
-
-                data[i].assign (data + i, _data + i);
-            }
-
-        for (; i < cap - 1; i++) {
-
-            //Here prev points to the next free cell
-            data[i] = Nod ();
-            data[i].prev = data + i + 1;
-            data[i].num = -1;
-        }
-
-        countHash ();
-    }
-
-    void DTOR () {
-
-        setPoison (&errCode);
-        setPoison (&canL);
-        setPoison (&canR);
-        setPoison (&hash);
-        setPoison (&size);
-        setPoison (&cap);
-
-        if (dataCanL != NULL) {
-
-            setPoison (dataCanL);
-            setPoison (dataCanR);
-            for (; (void*) data < (void*) dataCanR; data++) {
-                data->DTOR ();
-                setPoison (data);
-            }
-            free (dataCanL);
-            setPoison (&dataCanL);
-            setPoison (&data);
-            setPoison (&dataCanR);
-        }
-    }
 };

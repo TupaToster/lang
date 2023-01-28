@@ -5,6 +5,6 @@
 int main () {
 
     Tree lol;
-    Nod nods[5];
-
+    lol.add (NULL);
+    dump (lol);
 }
