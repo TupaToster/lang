@@ -4,7 +4,6 @@
 #include <math.h>
 #include <assert.h>
 #include "flog.h"
-#include "vector.h"
 
 #ifndef NDEBUG
 #define dump(clas) (clas).dumpInside (#clas, __FILE__, __FUNCTION__, __LINE__)
@@ -100,7 +99,7 @@ struct Nod {
 
         if (_next != NULL and _nextSize != 0) {
 
-            cap = Pow2After (_nextSize);
+            cap = __max (Pow2After (_nextSize), 4);
             size = _nextSize;
 
             next = (Nod**) calloc (cap, sizeof (Nod*));
@@ -139,6 +138,7 @@ struct Nod {
 
         memcpy (next, src->next, size * sizeof (Nod*));
     }
+
     void DTOR () {
 
         val = 0;
@@ -280,8 +280,8 @@ class Tree {
 
         hash = 0;
 
-        countHashSeg (&canL, &errCode);
-        countHashSeg (&canR, &canR);
+        countHashSeg (&canL, &canR);
+        if (dataCanL != NULL) countHashSeg (dataCanL, dataCanR);
 
         return hash;
     }
@@ -309,10 +309,27 @@ class Tree {
         if (isPoison (&canL    )
         or  isPoison (&canR    )
         or  isPoison (&data    )
-        or  isPoison (&hash    )) errCode |= POISON_ACCESS;
+        or  isPoison (&hash    )
+        or  isPoison (&cap     )
+        or  isPoison (&size    )
+        or  isPoison (&vacant  )
+        or  isPoison (vacant   )
+        or  isPoison (&data    )
+        or  isPoison (data     )
+        or  isPoison (&dataCanL)
+        or  isPoison (dataCanL )
+        or  isPoison (&dataCanR)
+        or  isPoison (dataCanR )) errCode |= POISON_ACCESS;
 
-        if      (canL != CANL      ) errCode |= BAD_CAN_L;
-        if      (canR != CANR      ) errCode |= BAD_CAN_R;
+        if      ( canL != CANL      ) errCode |= BAD_CAN_L;
+        if      ( canR != CANR      ) errCode |= BAD_CAN_R;
+        if      ( cap < size        ) errCode |= WRONG_SIZE;
+        if      ( dataCanL == NULL  ) errCode |= NULL_data_CAN_L_PTR;
+        else if (*dataCanL != CANL  ) errCode |= BAD_data_CAN_L;
+        if      ( dataCanR == NULL  ) errCode |= NULL_data_CAN_R_PTR;
+        else if (*dataCanR != CANL  ) errCode |= BAD_data_CAN_R;
+        if      (data == NULL       ) errCode |= NULL_data_PTR;
+
         countHash ();
 
         return errCode;
@@ -470,5 +487,26 @@ class Tree {
         flogprintf ("<hr>");
     }
 
+    Tree (Nod* _data = NULL, size_t _size = 0) {
 
+        canL      = CANL; ///< left cannary of struct
+        hash      = 0;    ///< hash value
+        errCode   = ok;   ///< error code
+        canR      = CANR; ///< right cannary of struct
+
+        if (_data != NULL and _size != 0) {
+
+            cap = __max (Pow2After (_size), 4);
+            size = _size;
+        }
+        else {
+
+            cap = 4;
+            size = 0;
+        }
+
+        data = (Nod*) calloc (cap, sizeof (Nod));
+        assert (data != NULL);
+        for (int i = 0; i < size; i++) data[i].assign (_data + i);
+    }
 };
