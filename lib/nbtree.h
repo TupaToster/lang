@@ -508,5 +508,15 @@ class Tree {
         data = (Nod*) calloc (cap, sizeof (Nod));
         assert (data != NULL);
         for (int i = 0; i < size; i++) data[i].assign (_data + i);
+
+        for (int i = size; i < cap - 1; i++) {
+
+            data[i].DTOR ();
+            data[i].prev = data + i + 1;
+        }
+
+        data[cap - 1].DTOR ();
     }
+
+
 };
