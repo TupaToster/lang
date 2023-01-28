@@ -14,7 +14,7 @@
 #define nsdump(clas) ;
 #endif
 
-#define Pow2After_size(size) (1 << ((size_t) ceil (log2 (size))))
+#define Pow2After(val) (1 << ((size_t) ceil (log2 (val))))
 
 struct Nod {
 
@@ -94,6 +94,80 @@ struct Nod {
 
             return pop_back ();
         }
+    }
+
+    Nod (double _val = 0, Nod** _next = NULL, size_t _nextSize = 0, Nod* _prev = NULL, int _num = -1) : val (_val), prev (_prev), num (_num) {
+
+        if (_next != NULL and _nextSize != 0) {
+
+            cap = Pow2After (_nextSize);
+            size = _nextSize;
+
+            next = (Nod**) calloc (cap, sizeof (Nod*));
+            assert (next != NULL);
+
+            memcpy (next, _next, size * sizeof (Nod*));
+        }
+        else {
+
+            cap = 4;
+            size = 0;
+
+            next = (Nod**) calloc (cap, sizeof (Nod*));
+            assert (next != NULL);
+        }
+    }
+
+    /// @brief Basically a copy of assign made to prevent creating var, destructing and refilling with data when initalized from another var
+    /// @param src ptr to Nod that is to be copied into this Nod
+    /// @warning Destructs this struct if it existed. Also please make sure src is a valid Nod struct.
+    Nod (const Nod* src) {
+
+        assert (src != NULL);
+
+        DTOR ();
+
+        val = src->val;
+        prev = src->prev;
+        num = src->num;
+
+        cap = src->cap;
+        size = src->size;
+
+        next = (Nod**) calloc (cap, sizeof (Nod*));
+        assert (next != NULL);
+
+        memcpy (next, src->next, size * sizeof (Nod*));
+    }
+    void DTOR () {
+
+        val = 0;
+        if (next != NULL) for (int i = 0; i < cap; i++) next[i] = NULL;
+        free (next);
+        cap = 0;
+        size = 0;
+        prev = NULL;
+        num = -1;
+    }
+
+    /// @warning Destructs this struct if it existed. Also please make sure src is a valid Nod struct.
+    void assign (const Nod* src) {
+
+        assert (src != NULL);
+
+        DTOR ();
+
+        val = src->val;
+        prev = src->prev;
+        num = src->num;
+
+        cap = src->cap;
+        size = src->size;
+
+        next = (Nod**) calloc (cap, sizeof (Nod*));
+        assert (next != NULL);
+
+        memcpy (next, src->next, size * sizeof (Nod*));
     }
 };
 
