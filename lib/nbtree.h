@@ -378,7 +378,7 @@ class Tree {
         picprintf ("\t" "graph [dpi = 200];" "\n");
         picprintf ("\t" "bgcolor = \"#252525\"" "\n");
         picprintf ("\t" "rankdir = TB" "\n");
-        picprintf ("\t" "splines = ortho" "\n");
+        // picprintf ("\t" "splines = ortho" "\n");
 
         int ranks[MAX_RANKS][MAX_RANKS + 1] = {0};
         int NodNum = 0;
