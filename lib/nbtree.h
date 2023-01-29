@@ -26,12 +26,15 @@ struct Nod {
 
     void resize () {
 
-        if (size > cap * 3 / 8 and size < cap) return;
+        if (size > cap * 3 / 8 and size < cap or size < cap and cap == 4) return;
 
         Nod** temp = NULL;
 
-        if (cap > 4 and size <= cap * 3 / 8) temp = (Nod**) calloc (cap * 3 / 8, sizeof (Nod**));
-        else if (size == cap) temp = (Nod*) calloc (cap * 2, sizeof (Nod*));
+        if (cap > 4 and size <= cap * 3 / 8) cap /= 2;
+        else if (size == cap) cap *= 2;
+
+        temp = (Nod**) calloc (cap, sizeof (Nod*));
+        assert (temp != NULL);
 
         memcpy (temp, next, size * sizeof (Nod**));
         free (next);
@@ -308,12 +311,10 @@ class Tree {
 
         if (isPoison (&canL    )
         or  isPoison (&canR    )
-        or  isPoison (&data    )
         or  isPoison (&hash    )
         or  isPoison (&cap     )
         or  isPoison (&size    )
         or  isPoison (&vacant  )
-        or  isPoison (vacant   )
         or  isPoison (&data    )
         or  isPoison (data     )
         or  isPoison (&dataCanL)
@@ -327,7 +328,7 @@ class Tree {
         if      ( dataCanL == NULL  ) errCode |= NULL_data_CAN_L_PTR;
         else if (*dataCanL != CANL  ) errCode |= BAD_data_CAN_L;
         if      ( dataCanR == NULL  ) errCode |= NULL_data_CAN_R_PTR;
-        else if (*dataCanR != CANL  ) errCode |= BAD_data_CAN_R;
+        else if (*dataCanR != CANR  ) errCode |= BAD_data_CAN_R;
         if      (data == NULL       ) errCode |= NULL_data_PTR;
 
         countHash ();
@@ -374,9 +375,10 @@ class Tree {
         sprintf (picName, "GraphDump_%d.png", GraphDumpCounter);
 
         picprintf ("digraph Tree_%d {" "\n", GraphDumpCounter);
-        picprintf ("\t" "graph [dpi = 150];" "\n");
-        picprintf ("\t" "bgcolor = \"252525\"" "\n");
+        picprintf ("\t" "graph [dpi = 200];" "\n");
+        picprintf ("\t" "bgcolor = \"#252525\"" "\n");
         picprintf ("\t" "rankdir = TB" "\n");
+        picprintf ("\t" "splines = ortho" "\n");
 
         int ranks[MAX_RANKS][MAX_RANKS + 1] = {0};
         int NodNum = 0;
@@ -408,7 +410,7 @@ class Tree {
         system (command);
 
         flogprintf ("<h2>Tree dump</h2><br>");
-        flogprintf ("<img src = \"%s\" style = \"width: 55%%;height: auto\"><br>");
+        flogprintf ("<img src = \"%s\" style = \"width: 55%%;height: auto\"><br>", picName);
 
         GraphDumpCounter++;
 
@@ -424,21 +426,23 @@ class Tree {
         ranks[depth][0]++;
         ranks[depth][ranks[depth][0]] = *num;
 
-        picprintf ("\t" "\"Nod_%d\" [shape = \"Mrecord\", style = \"filled\", fillcolor = \"1ed5f2\", label = \"{<prev> Prev = &ltp;%p&rt; | Current = &lt;%p&rt; | Value = &lt;", nod->num, nod->prev, nod);
+        picprintf ("\t" "\"Nod_%d\" [shape = \"Mrecord\", style = \"filled\", fillcolor = \"#1ed5f2\", label = \"{<prev> Prev = &lt;%p&gt; | Current = &lt;%p&gt; | Value = &lt;", nod->num, nod->prev, nod);
         if (dumpFunc != NULL) dumpFunc (nod);
         else picprintf (getFormat (nod->val), nod->val);
 
-        picprintf ("&rt; | {next[%d] : |", nod->next._size());
+        picprintf ("&gt; | {next[%d] : ", nod->size);
 
-        for (int i = 0; i < nod->next._size(); i++) {
+        for (int i = 0; i < nod->size; i++) {
 
-            picprintf ("{ [%d] | <next_%d>&lt;%p&rt; }", i, i, *nod->next.get(i));
-            if (i != nod->next._size() - 1) picprintf (" | ");
+            picprintf (" | { [%d] | <next_%d> &lt;%p&gt; }", i, i, nod->next[i]);
+            //if (i != nod->size - 1) picprintf (" | ");
         }
+
+        picprintf ("}}\"]" "\n")
 
         *num += 1;
 
-        for (int i = 0; i < nod->next._size(); i++) PrintNod (*nod->next.get (i), num, depth+1, picSource, ranks);
+        for (int i = 0; i < nod->size; i++) PrintNod (nod->next[i], num, depth + 1, picSource, ranks);
 
         #undef picprintf
 
@@ -448,10 +452,10 @@ class Tree {
 
         #define picprintf(...) fprintf (picSource, __VA_ARGS__);
 
-        for (int i = 0; i < nod->next._size(); i++) {
+        for (int i = 0; i < nod->size; i++) {
 
-            picprintf ("\t" "\"Nod_%d\":next_%d -> \"Nod_%d\":prev [color = \"#36f70f\"];\n", nod->num, i, (*nod->next.get(i))->num);
-            PrintConnections (*nod->next.get(i), picSource);
+            picprintf ("\t" "\"Nod_%d\":next_%d -> \"Nod_%d\":prev [color = \"#36f70f\"];\n", nod->num, i, (nod->next[i])->num);
+            PrintConnections (nod->next[i], picSource);
         }
 
         #undef picprintf
@@ -472,6 +476,30 @@ class Tree {
         if      ( isPoison (&hash)     ) flogprintf ( "POISONED)<br>")
         else                             flogprintf ( "ok)<br>")
 
+                                         flogprintf ( "\t" "cap      = %llu (", cap);
+        if      ( isPoison (&cap)      ) flogprintf ( "POISONED)<br>")
+        else                             flogprintf ( "ok)<br>")
+
+                                         flogprintf ( "\t" "size     = %llu (", size);
+        if      ( isPoison (&size)     ) flogprintf ( "POISONED)<br>")
+        else                             flogprintf ( "ok)<br>")
+
+                                         flogprintf ( "\t" "vacant   = 0x%p (", vacant);
+        if      ( isPoison (&vacant)   ) flogprintf ( "POISONED)<br>")
+        else                             flogprintf ( "ok)<br>")
+
+                                         flogprintf ( "\t" "data     = 0x%p (", data);
+        if      ( isPoison (&data)     ) flogprintf ( "POISONED)<br>")
+        else                             flogprintf ( "ok)<br>")
+
+                                         flogprintf ( "\t" "dataCanL = 0x%p (", dataCanL);
+        if      ( isPoison (dataCanL)  ) flogprintf ( "POISONED)<br>")
+        else                             flogprintf ( "ok)<br>")
+
+                                         flogprintf ( "\t" "dataCanR = 0x%p (", dataCanR);
+        if      ( isPoison (&dataCanR) ) flogprintf ( "POISONED)<br>")
+        else                             flogprintf ( "ok)<br>")
+
                                          flogprintf ( "\t" "canL     = 0x%X (", canL);
         if      ( isPoison (&canL)     ) flogprintf ( "POISONED)<br>")
         else if ( canL      == CANL    ) flogprintf ( "ok)<br>")
@@ -482,9 +510,10 @@ class Tree {
         else if ( canR      == CANR    ) flogprintf ( "ok)<br>")
         else                             flogprintf ( "NOT_OK)<br>")
 
+
         TreeGraphDump ();
 
-        flogprintf ("<hr>");
+        flogprintf ("</pre><hr>\n");
     }
 
     Tree (Nod* _data = NULL, size_t _size = 0) {
@@ -505,9 +534,20 @@ class Tree {
             size = 0;
         }
 
-        data = (Nod*) calloc (cap, sizeof (Nod));
+        data = (Nod*) calloc (cap * sizeof (Nod) + 2 * sizeof (unsigned int), 1);
         assert (data != NULL);
+
+        dataCanL = (unsigned int*) data;
+        *dataCanL = CANL;
+
+        data = (Nod*) (dataCanL + 1);
+
+        dataCanR = (unsigned int*) (data + cap);
+        *dataCanR = CANR;
+
         for (int i = 0; i < size; i++) data[i].assign (_data + i);
+
+        vacant = data + size;
 
         for (int i = size; i < cap - 1; i++) {
 
@@ -516,7 +556,110 @@ class Tree {
         }
 
         data[cap - 1].DTOR ();
+        data[cap - 1].prev = NULL;
     }
 
+    Nod* add (Nod val, Nod* prev = NULL, size_t index = -1) {
 
+        errCheck ();
+
+        prev = resize (prev);
+
+        assert (vacant != NULL);
+
+        Nod* retVal = vacant;
+        vacant = vacant->prev;
+
+
+        *retVal = Nod (&val);
+
+        if (prev != NULL) {
+
+            prev->insert (index, retVal);
+            retVal->prev = prev;
+        }
+
+        val.DTOR ();
+
+        size++;
+
+        countHash ();
+
+        return retVal;
+    }
+
+    Nod* resize (Nod* invariant = NULL) {
+
+        errCheck ();
+
+        if (size > cap * 3 / 8 and size < cap or size < cap and cap == MIN_CAP) return invariant;
+
+        if (cap > MIN_CAP and size <= cap * 3 / 8) cap /= 2;
+        else if (size == cap) cap *= 2;
+
+        data = (Nod*) calloc (cap * sizeof (Nod) + 2 * sizeof (unsigned int), 1);
+        assert (data != NULL);
+
+        Nod* iter = (Nod*) ((unsigned int*) data + 1);
+
+        for (int i = 0; i < cap; i++) iter[i] = Nod();
+
+        writeRaw (&iter, (Nod*) (dataCanL + 1));
+
+        if (invariant != NULL) invariant = invariant->prev;
+
+        fixPointers ((Nod*) (dataCanL + 1));
+
+        for (Nod* i = (Nod*) (dataCanL + 1); i < (Nod*) dataCanR; i++) i->DTOR ();
+
+        free (dataCanL);
+
+        dataCanL = (unsigned int*) data;
+        *dataCanL = CANL;
+
+        data = (Nod*) (dataCanL + 1);
+
+        dataCanR = (unsigned int*) (data + cap);
+        *dataCanR = CANR;
+
+        data->prev = NULL;
+        for (int i = size; i < cap - 1; i++) {
+
+            data[i].DTOR ();
+            data[i].prev = data + i + 1;
+        }
+
+        data[cap - 1].DTOR ();
+        data[cap - 1].prev = NULL;
+
+        vacant = data + size;
+
+        countHash ();
+
+        return invariant;
+    }
+
+    void writeRaw (Nod** dst, Nod* src) {
+
+        **dst = Nod (src);
+        src->prev = *dst;
+        *dst += 1;
+
+        for (int i = 0; i < src->size; i++) writeRaw (dst, src->next[i]);
+    }
+
+    void fixPointers (Nod* iter) {
+
+        for (int i = 0; i < iter->size; i++) {
+
+            iter->prev->next[i] = iter->next[i]->prev;
+            fixPointers (iter->next[i]);
+            iter->prev->next[i]->prev = iter->prev;
+        }
+    }
+
+    Nod* _data () {
+
+        return data;
+    }
 };

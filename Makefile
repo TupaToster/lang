@@ -18,11 +18,11 @@ asm: $(ASM:.cpp=.o) $(LIB:.cpp=.o)
 	$(CC) $(CFLAGS) $(ASM:asm/%.cpp=%.o) $(LIB:lib/%.cpp=%.o) -o asm.exe
 
 test: clean
-	g++ main.cpp lib/flog.cpp
+	$(CC) $(CFLAGS) main.cpp lib/flog.cpp
 	./a
 
 clean:
-	rm -rf */*.o *.exe* */*.d *.o *.d
+	rm -rf */*.o *.exe* */*.d *.o *.d */*.png *.png *.dot
 	clear
 
 .PHONY: clean

@@ -1,10 +1,12 @@
-#include "lib/stack.h"
-#include "lib/vector.h"
 #include "lib/nbtree.h"
 
 int main () {
 
     Tree lol;
-    lol.add (NULL);
+    lol.add (Nod (12));
+    lol.add (Nod (13), lol._data ());
+    lol.add (Nod (13), lol._data ());
+    lol.add (Nod (13), lol._data ());
+    lol.add (Nod (13), lol._data ());
     dump (lol);
 }

@@ -22,11 +22,11 @@ FILE* logOutf = NULL;
 
 void flogIntern (const void* val, const char* varType, const char* varName, size_t varSize, const char* fileName, const char* funcName, size_t line) {
 
-    fprintf (logOutf, "In file %s, function %s, line %u : %s = ", fileName, funcName, line, varName);
+    fprintf (logOutf, "<pre>In file %s, function %s, line %u : %s = ", fileName, funcName, line, varName);
 
 
     if (!strcmp (varType, "Pc") || !strcmp (varType, "PKc")) fprintf (logOutf, "<%s>", *((const char**) val));
-    else if (varType[0] == 'P') fprintf (logOutf, "%p", *(void**)val);
+    else if (varType[0] == 'P') fprintf (logOutf, "0x%p", *(void**)val);
 
     else if (!strcmp (varType, "i") || !strcmp (varType, "Ki")) fprintf (logOutf, "%d"   , *( ( const int*)                val));
     else if (!strcmp (varType, "x") || !strcmp (varType, "Kx")) fprintf (logOutf, "%lld" , *( ( const long long*)          val));
@@ -40,7 +40,7 @@ void flogIntern (const void* val, const char* varType, const char* varName, size
         for (int i = 0; i < varSize; i++) fprintf (logOutf, "%hhX", *((char*) val + i));
         fprintf (logOutf, " :: UNDEFINED_FORMAT : sizeof() = %u", varSize);
     }
-    fprintf (logOutf, ";\n");
+    fprintf (logOutf, ";<br></pre>\n");
 }
 
 const char* getFormatIntern (const char* varType) {
