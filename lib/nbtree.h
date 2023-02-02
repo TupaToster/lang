@@ -623,7 +623,7 @@ class Tree {
         fixPointers ((Nod*) (dataCanL + 1));
 
         for (Nod* i = (Nod*) (dataCanL + 1); i < (Nod*) dataCanR; i++)
-            if (i->prev != NULL) i->DTOR (); //fix of questionable quality
+            if (i->prev != NULL or i == (Nod*) (dataCanL + 1)) i->DTOR (); //fix of questionable quality
 
         free (dataCanL);
 
@@ -671,7 +671,7 @@ class Tree {
         }
     }
 
-    Nod* _data () {
+    Nod* getData () {
 
         return data;
     }
@@ -693,5 +693,18 @@ class Tree {
         countHash ();
 
         return invariant;
+    }
+
+
+    /// @brief Used to change CONTENTS of Nods without breaking hash
+    /// @param ptr Nod* of a Nod to change
+    /// @param action function to apply to ptr
+    void set (Nod* ptr, void (*action) (Nod* ptr)) {
+
+        errCheck ();
+
+        action (ptr);
+
+        countHash ();
     }
 };
