@@ -145,8 +145,10 @@ struct Nod {
     void DTOR () {
 
         val = 0;
-        if (next != NULL) for (int i = 0; i < cap; i++) next[i] = NULL;
-        free (next);
+        if (next != NULL) {
+            for (int i = 0; i < cap; i++) next[i] = NULL;
+            free (next);
+        }
         cap = 0;
         size = 0;
         prev = NULL;
@@ -378,7 +380,7 @@ class Tree {
         picprintf ("\t" "graph [dpi = 200];" "\n");
         picprintf ("\t" "bgcolor = \"#252525\"" "\n");
         picprintf ("\t" "rankdir = TB" "\n");
-        picprintf ("\t" "splines = ortho" "\n");
+        // picprintf ("\t" "splines = ortho" "\n");
 
         int ranks[MAX_RANKS][MAX_RANKS + 1] = {0};
         int NodNum = 0;
@@ -461,9 +463,18 @@ class Tree {
         #undef picprintf
     }
 
+    void recDtorInside (Nod* iter) {
+
+        size--;
+
+        for (int i = 0; i < iter->size; i++) recDtorInside (iter->next[i]);
+
+        iter->DTOR ();
+    }
+
     public:
 
-    void dumpInside (const char* name, const char* fileName, const char* funcName, size_t line, void (*dumpFunc) (Nod* obj) = NULL) {
+    void dumpInside (const char* name = NULL, const char* fileName = NULL, const char* funcName = NULL, size_t line = 0, void (*dumpFunc) (Nod* obj) = NULL) {
 
         flogprintf ("<pre>" "In file %s, function %s, line %llu, Tree named \"%s\" was dumped :<br>",
                     fileName, funcName, line, name);
@@ -597,6 +608,7 @@ class Tree {
         if (cap > MIN_CAP and size <= cap * 3 / 8) cap /= 2;
         else if (size == cap) cap *= 2;
 
+
         data = (Nod*) calloc (cap * sizeof (Nod) + 2 * sizeof (unsigned int), 1);
         assert (data != NULL);
 
@@ -610,7 +622,8 @@ class Tree {
 
         fixPointers ((Nod*) (dataCanL + 1));
 
-        for (Nod* i = (Nod*) (dataCanL + 1); i < (Nod*) dataCanR; i++) i->DTOR ();
+        for (Nod* i = (Nod*) (dataCanL + 1); i < (Nod*) dataCanR; i++)
+            if (i->prev != NULL) i->DTOR (); //fix of questionable quality
 
         free (dataCanL);
 
@@ -661,5 +674,24 @@ class Tree {
     Nod* _data () {
 
         return data;
+    }
+
+    Nod* recDtor (Nod* iter, Nod* invariant = NULL) {
+
+        errCheck ();
+
+        for (int i = 0; i < iter->prev->size; i++)
+            if (iter->prev->next[i] == iter) {
+                iter->prev->erase (i);
+                break;
+            }
+
+        recDtorInside (iter);
+
+        invariant = resize (invariant);
+
+        countHash ();
+
+        return invariant;
     }
 };

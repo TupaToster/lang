@@ -22,7 +22,6 @@ const char* getFormatIntern (const char* varType);
                 setvbuf (logOutf, NULL, _IONBF, 0);                                                               \
                 fprintf (logOutf, "<pre>----------------------------------------\n"                              \
                 "<style> body {padding: 25px; background-color: #252525; color: white; font-size: 25px;} </style>"\
-                "<meta http-equiv=\"refresh\" content=\"5\" />"                                                   \
                 "Logging session at compiled time : %s %s<br><br></pre>\n\n", __TIME__, __DATE__);                \
             }                                                                                                     \
             flogIntern (&a, typeid (a).name (), #a, sizeof (a), __FILE__, __FUNCTION__, __LINE__);}
@@ -33,7 +32,6 @@ const char* getFormatIntern (const char* varType);
                 setvbuf (logOutf, NULL, _IONBF, 0);                                                               \
                 fprintf (logOutf, "<pre>----------------------------------------\n"                             \
                 "<style> body {padding: 25px; background-color: #252525; color: white; font-size: 25px;} </style>"\
-                " <meta http-equiv=\"refresh\" content=\"5\"/>"                                                   \
                 "Logging session at compiled time : %s %s<br><br></pre>\n\n", __TIME__, __DATE__);                \
     }                                                                                                             \
     fprintf (logOutf, __VA_ARGS__);}
