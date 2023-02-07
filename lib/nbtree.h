@@ -15,9 +15,140 @@
 
 #define Pow2After(val) (1 << ((size_t) ceil (log2 (val))))
 
+enum NodType {
+
+    BLANK = 0,
+    IF = 1,
+    ELSE = 2,
+    FOR = 3,
+    WHILE = 4,
+    CHAR = 5,
+    INT = 6,
+    DOUBLE = 7,
+    STR = 8,
+    PLUS = 9,
+    MINUS = 10,
+    MULT = 11,
+    DIV = 12,
+    DIFF = 13,
+    SIN = 14,
+    COS = 15,
+    POW = 16,
+    SC = 17,
+    COMA = 18,
+    VAR = 19,
+    FUNC = 20,
+    LB = 21,
+    RB = 22,
+    LSB = 23,
+    RSB = 24,
+    LFB = 25,
+    RFB = 26,
+    LESS = 27,
+    GREATER = 28,
+    LESS_EQ = 29,
+    GREATER_EQ = 30,
+    EQ = 31,
+    EQEQ = 32,
+    NOD_TYPE_CNT = 33
+};
+
+const unsigned int HashMult = 107u;
+
+unsigned int countHash (void* from, void* to) {
+
+    assert (from != NULL);
+    assert (to != NULL);
+    assert (from < to);
+
+    unsigned int hash = 0;
+
+    for (; from < to; from = (char*) from + 1) {
+
+        hash *= HashMult;
+        hash += *(unsigned char*)from;
+    }
+
+    return hash;
+}
+
+unsigned int Syntax[] = {
+
+    -1           , //  "_BLANK"
+    11337u       , //  "if"
+    124978241u   , //  "else"
+    1179789u     , //  "for"
+    2842188905u  , //  "while"
+    122480446u   , //  "char"
+    1214031u     , //  "int"
+    4201789717u  , //  "double"
+    487987757u   , //  "string"
+    43u          , //  "+"
+    45u          , //  "-"
+    42u          , //  "*"
+    47u          , //  "/"
+    1150029u     , //  "d/d"
+    1327980u     , //  "sin"
+    1145443u     , //  "cos"
+    1294284u     , //  "pow"
+    59u          , //  ";"
+    44u          , //  ","
+    -2           , //  "_VAR"
+    -3           , //  "_FUNC"
+    40u          , //  "("
+    41u          , //  ")"
+    91u          , //  "["
+    93u          , //  "]"
+    123u         , //  "{"
+    125u         , //  "}"
+    60u          , //  "<"
+    62u          , //  ">"
+    6481u        , //  "<="
+    6695u        , //  ">="
+    61u          , //  "="
+    6588u        , //  "=="
+    -4           , //  "_NOD_TYPE_CNT"
+
+};
+
+union NodVal {
+
+    int I;
+    double LF;
+    char C;
+    char* STR;
+
+    NodVal () : LF (0) {}
+    NodVal (int intVal) : I (intVal) {}
+    NodVal (double doubleVal) : LF (doubleVal) {}
+    NodVal (char charVal) : C (charVal) {}
+
+    NodVal (char* strVal) {
+
+        if (strVal == NULL) {
+
+            STR = NULL;
+            return;
+        }
+
+        STR = strdup (strVal);
+        assert (STR != NULL);
+    }
+};
+
+//Defines to determine how to interpret NodVal depending on NodType
+
+#define IS_INT(type) (type == INT)
+#define IS_DOUBLE(type) (type == DOUBLE)
+#define IS_CHAR(type) (type == CHAR)
+#define IS_STR(type) (type == STR or type == BLANK)
+
+#define MAX_WORD_LEN 100
+
 struct Nod {
 
-    double val = 0;
+    NodType type = BLANK;
+    NodVal val = 0;
     Nod** next = NULL;
     size_t size = 0;
     size_t cap = 0;
@@ -98,7 +229,7 @@ struct Nod {
         }
     }
 
-    Nod (double _val = 0, Nod** _next = NULL, size_t _nextSize = 0, Nod* _prev = NULL, int _num = -1) : val (_val), prev (_prev), num (_num) {
+    void NodSetNext (Nod** _next = NULL, size_t _nextSize = 0) {
 
         if (_next != NULL and _nextSize != 0) {
 
@@ -120,6 +251,31 @@ struct Nod {
         }
     }
 
+    Nod () : type (BLANK), val (), prev (NULL), num (-1) {
+
+        NodSetNext ();
+    }
+
+    Nod (NodType _type, int _val, Nod** _next = NULL, size_t _nextSize = 0, Nod* _prev = NULL, int _num = -1) : type (_type), val (_val), prev (_prev), num (_num) {
+
+        NodSetNext ();
+    }
+
+    Nod (NodType _type, double _val, Nod** _next = NULL, size_t _nextSize = 0, Nod* _prev = NULL, int _num = -1) : type (_type), val (_val), prev (_prev), num (_num) {
+
+        NodSetNext ();
+    }
+
+    Nod (NodType _type, char _val, Nod** _next = NULL, size_t _nextSize = 0, Nod* _prev = NULL, int _num = -1) : type (_type), val (_val), prev (_prev), num (_num) {
+
+        NodSetNext ();
+    }
+
+    Nod (NodType _type, char* _val, Nod** _next = NULL, size_t _nextSize = 0, Nod* _prev = NULL, int _num = -1) : type (_type), val (_val), prev (_prev), num (_num) {
+
+        NodSetNext ();
+    }
+
     /// @brief Basically a copy of assign made to prevent creating var, destructing and refilling with data when initalized from another var
     /// @param src ptr to Nod that is to be copied into this Nod
     /// @warning Destructs this struct if it existed. Also please make sure src is a valid Nod struct.
@@ -127,11 +283,12 @@ struct Nod {
 
         assert (src != NULL);
 
-        DTOR ();
-
-        val = src->val;
+        type = src->type;
         prev = src->prev;
         num = src->num;
+
+        if (! IS_STR (type)) val = src->val;
+        else val = src->val.STR;
 
         cap = src->cap;
         size = src->size;
@@ -152,6 +309,7 @@ struct Nod {
         cap = 0;
         size = 0;
         prev = NULL;
+        next = NULL;
         num = -1;
     }
 
@@ -160,11 +318,14 @@ struct Nod {
 
         assert (src != NULL);
 
-        DTOR ();
+        if (prev != NULL) DTOR ();
 
-        val = src->val;
+        type = src->type;
         prev = src->prev;
         num = src->num;
+
+        if (!IS_STR (type)) val = src->val;
+        else val = src->val.STR;
 
         cap = src->cap;
         size = src->size;
@@ -362,7 +523,7 @@ class Tree {
 
     }
 
-    void TreeGraphDump (void (*dumpFunc) (Nod* val) = NULL) {
+    void TreeGraphDump () {
 
         static int GraphDumpCounter = 0;
 
@@ -387,7 +548,7 @@ class Tree {
 
         errCheck ();
 
-        PrintNod (data, &NodNum, 0, picSource, ranks, dumpFunc);
+        PrintNod (data, &NodNum, 0, picSource, ranks);
 
         countHash ();
 
@@ -419,7 +580,7 @@ class Tree {
         #undef picprintf
     }
 
-    void PrintNod (Nod* nod, int* num, int depth, FILE* picSource, int ranks[MAX_RANKS][MAX_RANKS + 1], void (*dumpFunc) (Nod* val) = NULL) {
+    void PrintNod (Nod* nod, int* num, int depth, FILE* picSource, int ranks[MAX_RANKS][MAX_RANKS + 1]) {
 
         #define picprintf(...) fprintf (picSource, __VA_ARGS__);
 
@@ -428,11 +589,11 @@ class Tree {
         ranks[depth][0]++;
         ranks[depth][ranks[depth][0]] = *num;
 
-        picprintf ("\t" "\"Nod_%d\" [shape = \"Mrecord\", style = \"filled\", fillcolor = \"#1ed5f2\", label = \"{<prev> Prev = &lt;%p&gt; | Current = &lt;%p&gt; | Value = &lt;", nod->num, nod->prev, nod);
-        if (dumpFunc != NULL) dumpFunc (nod);
-        else picprintf (getFormat (nod->val), nod->val);
+        picprintf ("\t" "\"Nod_%d\" [shape = \"Mrecord\", style = \"filled\", fillcolor = \"#1ed5f2\", label = \"{<prev> Prev = &lt;%p&gt; | Current = &lt;%p&gt; | ", nod->num, nod->prev, nod);
 
-        picprintf ("&gt; | {next[%d] : ", nod->size);
+        nodDumpFunc (picSource, nod);
+
+        picprintf (" | {next[%d] : ", nod->size);
 
         for (int i = 0; i < nod->size; i++) {
 
@@ -581,8 +742,9 @@ class Tree {
         Nod* retVal = vacant;
         vacant = vacant->prev;
 
-
-        *retVal = Nod (&val);
+        flog (retVal);
+        dumpInside ();
+        retVal->assign (&val);
 
         if (prev != NULL) {
 
@@ -654,7 +816,7 @@ class Tree {
 
     void writeRaw (Nod** dst, Nod* src) {
 
-        **dst = Nod (src);
+        (*dst)->assign (src);
         src->prev = *dst;
         *dst += 1;
 
@@ -695,6 +857,19 @@ class Tree {
         return invariant;
     }
 
+    void nodDumpFunc (FILE* outputFile, const Nod* nod) {
+
+        #define picprintf(...) fprintf (outputFile, __VA_ARGS__)
+
+        picprintf ("Type = &lt;%s&gt; | Value = &lt;", Syntax[nod->type]);
+        if (IS_INT (nod->type)) picprintf ("%d", nod->val);
+        else if (IS_CHAR (nod->type)) picprintf ("%c", nod->val);
+        else if (IS_DOUBLE (nod->type)) picprintf ("%lf", nod->val);
+        else if (IS_STR (nod->type)) picprintf ("%s", nod->val);
+        picprintf ("&gt;");
+
+        #undef picprintf
+    }
 
     /// @brief Used to change CONTENTS of Nods without breaking hash
     /// @param ptr Nod* of a Nod to change
