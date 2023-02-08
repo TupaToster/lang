@@ -4,7 +4,7 @@ size_t getFileSize (const char* fileName) {
 
     assert (fileName != NULL);
 
-    stat temp = {};
+    struct stat temp = {};
 
     stat (fileName, &temp);
 
@@ -39,7 +39,7 @@ Nod* sizeUp (Nod* buffer, size_t* size, size_t* cap){
     return retVal;
 }
 
-Nod* bufferize (const char* fileName) {
+Nod* bufferize (const char* fileName, size_t* _size, size_t* _cap) {
 
     assert (fileName != NULL);
 
@@ -89,22 +89,24 @@ Nod* bufferize (const char* fileName) {
         buffer = sizeUp (buffer, &size, &cap);
         assert (buffer != NULL);
 
-        for (int i = 0; i <= NOD_TYPE_CNT;i++) 
+        for (int i = 0; i <= NOD_TYPE_CNT;i++)
             if (i == NOD_TYPE_CNT) {
 
                 buffer[size] = Nod (BLANK, word);
                 size++;
             }
-            if (0 <= (int) Syntax[i] and Syntax[i] == hashWord) {
+            else if (0 <= (int) Syntax[i] and Syntax[i] == hashWord) {
 
                 buffer[size] = Nod ((NodType) i, 0);
                 size++;
 
                 break;
             }
-            
-
-        
     }
+
+    *_size = size;
+    *_cap = cap;
+
+    return buffer;
 }
 

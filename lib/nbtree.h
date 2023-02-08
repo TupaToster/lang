@@ -74,7 +74,7 @@ unsigned int countHash (void* from, void* to) {
 
 unsigned int Syntax[] = {
 
-    -1           , //  "_BLANK"
+    -1u          , //  "_BLANK"
     11337u       , //  "if"
     124978241u   , //  "else"
     1179789u     , //  "for"
@@ -93,8 +93,8 @@ unsigned int Syntax[] = {
     1294284u     , //  "pow"
     59u          , //  ";"
     44u          , //  ","
-    -2           , //  "_VAR"
-    -3           , //  "_FUNC"
+    -2u          , //  "_VAR"
+    -3u          , //  "_FUNC"
     40u          , //  "("
     41u          , //  ")"
     91u          , //  "["
@@ -107,7 +107,7 @@ unsigned int Syntax[] = {
     6695u        , //  ">="
     61u          , //  "="
     6588u        , //  "=="
-    -4           , //  "_NOD_TYPE_CNT"
+    -4u          , //  "_NOD_TYPE_CNT"
 
 };
 
