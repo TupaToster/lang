@@ -4,8 +4,10 @@
 #include <math.h>
 #include <assert.h>
 #include <sys/stat.h>
-#include "../lib/flog.h"
+#include <string.h>
 #include "../lib/nbtree.h"
+
+#define SERVICE_SYMBOLS "]+[&/;,(){}<->="
 
 size_t getFileSize (const char* fileName);
 

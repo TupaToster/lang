@@ -39,7 +39,7 @@ Nod* sizeUp (Nod* buffer, size_t* size, size_t* cap){
     return retVal;
 }
 
-Nod* bufferize (const char* fileName, size_t* _size, size_t* _cap) {
+Nod* bufferize (const char* fileName, size_t* size, size_t* cap) {
 
     assert (fileName != NULL);
 
@@ -51,61 +51,62 @@ Nod* bufferize (const char* fileName, size_t* _size, size_t* _cap) {
     char word[MAX_WORD_LEN] = "";
     int delta = 0;
 
-    size_t cap  = 4;
-    size_t size = 0;
-    Nod* buffer = (Nod*) calloc (cap, sizeof (Nod));
+    *cap = 4;
+    *size = 0;
+    Nod* buffer = (Nod*) calloc (*cap, sizeof (Nod));
     assert (buffer != NULL);
 
     for (;;) {
 
-        if (sscanf (code + iter, " %[^][+-*/;,(){}<>=]%n", word, &delta) == EOF) break;
-        iter += delta;
+        delta = 0;
+        word[0] = '\0';
+        if (sscanf (code + iter, " %[^" SERVICE_SYMBOLS " \r\n]%n", word, &delta) == EOF) break;
 
+        iter += delta;
         unsigned int hashWord = countHash (word, word + strlen (word));
 
-        buffer = sizeUp (buffer, &size, &cap);
+        buffer = sizeUp (buffer, size, cap);
+        assert (buffer != NULL);
+
+        for (int i = 0; i <= NOD_TYPE_CNT; i++)
+            if (i == NOD_TYPE_CNT){
+
+                if (strlen (word) == 0) break;
+                buffer[*size] = Nod (BLANK, word);
+                *size += 1;
+            }
+            else if (Syntax[i] > 0 and Syntax[i] == hashWord) {
+
+                buffer[*size] = Nod ((NodType) i, 0);
+                *size += 1;
+                break;
+            }
+
+        delta = 0;
+        word[0] = '\0';
+        if (sscanf (code + iter, " %[" SERVICE_SYMBOLS "]%n", word, &delta) == EOF) break;
+
+        iter += delta;
+        hashWord = countHash (word, word + strlen (word));
+
+        buffer = sizeUp (buffer, size, cap);
         assert (buffer != NULL);
 
         for (int i = 0; i <= NOD_TYPE_CNT; i++)
             if (i == NOD_TYPE_CNT) {
 
-                buffer[size] = Nod (BLANK, word);
-                size++;
+                if (strlen (word) == 0) break;
+                buffer[*size] = Nod (BLANK, word);
+                *size += 1;
             }
-            else if (0 <= (int) Syntax[i] and Syntax[i] == hashWord) {
+            else if (Syntax[i] > 0 and Syntax[i] == hashWord) {
 
-                buffer[size] = Nod ((NodType) i, 0);
-                size++;
-
+                buffer[*size] = Nod ((NodType) i, 0);
+                *size += 1;
                 break;
             }
 
-
-        if (sscanf (code + iter, " %[][+-*/;,(){}<>=]%n", word, &delta) == EOF) break;
-        iter += delta;
-
-        hashWord = countHash (word, word + strlen (word));
-
-        buffer = sizeUp (buffer, &size, &cap);
-        assert (buffer != NULL);
-
-        for (int i = 0; i <= NOD_TYPE_CNT;i++)
-            if (i == NOD_TYPE_CNT) {
-
-                buffer[size] = Nod (BLANK, word);
-                size++;
-            }
-            else if (0 <= (int) Syntax[i] and Syntax[i] == hashWord) {
-
-                buffer[size] = Nod ((NodType) i, 0);
-                size++;
-
-                break;
-            }
     }
-
-    *_size = size;
-    *_cap = cap;
 
     return buffer;
 }
