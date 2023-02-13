@@ -53,7 +53,9 @@ enum NodType {
     EQEQ = 32,
     VOID = 33,
     RETURN = 34,
-    NOD_TYPE_CNT = 35
+    AND = 35,
+    OR = 36,
+    NOD_TYPE_CNT = 37
 };
 
 union NodVal {

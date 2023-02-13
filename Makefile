@@ -18,7 +18,7 @@ asm: $(ASM:.cpp=.o) $(LIB:.cpp=.o)
 	$(CC) $(CFLAGS) $(ASM:asm/%.cpp=%.o) $(LIB:lib/%.cpp=%.o) -o asm.exe
 
 test: clean
-	$(CC) $(CFLAGS) main.cpp lib/flog.cpp front/front.cpp lib/syntax.cpp
+	$(CC) $(CFLAGS) main.cpp lib/flog.cpp front/front.cpp lib/syntax.cpp lib/text.cpp
 	./a
 
 clean:

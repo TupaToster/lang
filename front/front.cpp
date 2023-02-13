@@ -1,31 +1,5 @@
 #include "front.h"
 
-size_t getFileSize (const char* fileName) {
-
-    assert (fileName != NULL);
-
-    struct stat temp = {};
-
-    stat (fileName, &temp);
-
-    return temp.st_size;
-}
-
-char* bufferizeFile (const char* fileName) {
-
-    char* retVal = (char*) calloc (getFileSize (fileName) + 1, sizeof (char));
-    assert (retVal != NULL);
-
-    FILE* fIn = fopen (fileName, "rb");
-    assert (fIn != NULL);
-
-    fread (retVal, sizeof (char), getFileSize (fileName), fIn);
-
-    retVal[getFileSize (fileName)] = '\0';
-
-    return retVal;
-}
-
 Nod* sizeUp (Nod* buffer, size_t* size, size_t* cap){
 
     if (*size < *cap) return buffer;
@@ -236,9 +210,11 @@ Nod* bufferize (const char* fileName, size_t* size, size_t* cap) {
     int delta = 0;
 
     *cap = 4;
-    *size = 0;
+    *size = 1;
     Nod* buffer = (Nod*) calloc (*cap, sizeof (Nod));
     assert (buffer != NULL);
+
+    buffer[0] = Nod (BLANK, 0.0);
 
     for (;;) {
 
@@ -265,3 +241,13 @@ Nod* bufferize (const char* fileName, size_t* size, size_t* cap) {
 
     return buffer;
 }
+
+Tree Get_G (Nod* buffer, size_t size) {
+
+    assert (buffer != NULL);
+
+    Tree tree (buffer, size);
+
+    Get_1 (&tree, tree.getData (), 1);
+}
+

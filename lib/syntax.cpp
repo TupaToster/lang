@@ -56,6 +56,8 @@ unsigned int Syntax[] = {
     6588u        , //  "=="
     145837248u   , //  "void"
     1678733528u  , //  "return"
+    1122423u     , //  "and"
+    11991u       , //  "or"
     0u           , //  "_NOD_TYPE_CNT"
 
 };
