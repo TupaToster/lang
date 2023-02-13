@@ -7,7 +7,7 @@
 #include <string.h>
 #include "../lib/nbtree.h"
 
-#define SERVICE_SYMBOLS "]+[&/;,(){}<->="
+#define SERVICE_SYMBOLS "]+[&/;,(){}<>=--"
 
 size_t getFileSize (const char* fileName);
 

@@ -1,6 +1,6 @@
-int kok = 14;
-if (negri == people) {
+int kok = 144;
+while (1) {
 
-    kick obama for;
-    else no_kick obaa;
+    printf ("avtor pidaras");
 }
+return;

@@ -51,7 +51,9 @@ enum NodType {
     GREATER_EQ = 30,
     EQ = 31,
     EQEQ = 32,
-    NOD_TYPE_CNT = 33
+    VOID = 33,
+    RETURN = 34,
+    NOD_TYPE_CNT = 35
 };
 
 union NodVal {
