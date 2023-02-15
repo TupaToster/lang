@@ -16,6 +16,8 @@
 
 #define Pow2After(val) (1 << ((size_t) ceil (log2 (val))))
 
+#define set(tree, code) {tree->verifyHash (); code tree->countHash ();}
+
 enum NodType {
 
     BLANK = 0,
@@ -89,6 +91,7 @@ union NodVal {
 #define IS_DOUBLE(type) (type == DOUBLE)
 #define IS_CHAR(type) (type == CHAR)
 #define IS_STR(type) (type == STR or type == BLANK)
+#define IS_TYPE(type) (type == INT or type == DOUBLE or type == STR or type == CHAR)
 
 #define MAX_WORD_LEN 100
 
@@ -248,6 +251,7 @@ struct Nod {
 
     void DTOR () {
 
+        type = BLANK;
         val = 0;
         if (next != NULL) {
             for (int i = 0; i < cap; i++) next[i] = NULL;
@@ -389,26 +393,6 @@ class Tree {
         }
     }
 
-    unsigned int countHash () {
-
-        hash = 0;
-
-        countHashSeg (&canL, &canR);
-        if (dataCanL != NULL) countHashSeg (dataCanL, dataCanR);
-
-        return hash;
-    }
-
-    bool verifyHash () {
-
-        if (countHash () != hash) {
-
-            errCode |= WRONG_HASH;
-            return false;
-        }
-        return true;
-    }
-
     size_t errCheck () {
 
         if (isPoison (&errCode)) {
@@ -416,6 +400,7 @@ class Tree {
             errCode = POISONED_ERRCOD;
             return errCode;
         }
+
 
         verifyHash ();
 
@@ -480,6 +465,8 @@ class Tree {
 
         char srcName[] = "GraphDumpSrc.dot";
         FILE* picSource = fopen (srcName, "w");
+        setvbuf (picSource, NULL, _IONBF, 0);
+
 
         char picName[30] = "";
         sprintf (picName, "GraphDump_%d.png", GraphDumpCounter);
@@ -537,7 +524,6 @@ class Tree {
         ranks[depth][ranks[depth][0]] = *num;
 
         picprintf ("\t" "\"Nod_%d\" [shape = \"Mrecord\", style = \"filled\", fillcolor = \"#1ed5f2\", label = \"{<prev> Prev = &lt;%p&gt; | Current = &lt;%p&gt; | ", nod->num, nod->prev, nod);
-
         nodDumpFunc (picSource, nod);
 
         picprintf (" | {next[%d] : ", nod->size);
@@ -581,6 +567,23 @@ class Tree {
     }
 
     public:
+
+    void dumpNodArray (Nod* array, size_t cap) {
+
+        assert (array != NULL);
+
+        flog (array);
+        for (int i = 0; i < cap; i++) {
+
+            flogprintf ("\t%p : Type = %d, val = %.8X ", array + i, array[i].type, array[i].val);
+            for (int j = 0; j < array[i].size; j++) {
+
+                flogprintf ("next[%d] : %p; ", j, array[i].next[j]);
+            }
+            flogprintf ("<br>");
+        }
+        flogprintf ("stop\n\n");
+    }
 
     void dumpInside (const char* name = NULL, const char* fileName = NULL, const char* funcName = NULL, size_t line = 0, void (*dumpFunc) (Nod* obj) = NULL) {
 
@@ -664,7 +667,9 @@ class Tree {
         dataCanR = (unsigned int*) (data + cap);
         *dataCanR = CANR;
 
+
         for (int i = 0; i < size; i++) data[i].assign (_data + i);
+
 
         vacant = data + size;
 
@@ -672,10 +677,8 @@ class Tree {
 
             data[i].DTOR ();
             data[i].prev = data + i + 1;
+            if (i == cap - 1) data[i].prev = NULL;
         }
-
-        data[cap - 1].DTOR ();
-        data[cap - 1].prev = NULL;
     }
 
     Nod* add (Nod val, Nod* prev = NULL, size_t index = -1) {
@@ -785,6 +788,16 @@ class Tree {
         return data;
     }
 
+    size_t getSize () {
+
+        return size;
+    }
+
+    size_t getCap () {
+
+        return cap;
+    }
+
     Nod* recDtor (Nod* iter, Nod* invariant = NULL) {
 
         errCheck ();
@@ -808,7 +821,7 @@ class Tree {
 
         #define picprintf(...) fprintf (outputFile, __VA_ARGS__)
 
-        picprintf ("Type = &lt;%s&gt; | Value = &lt;", Syntax[nod->type]);
+        picprintf ("Type = &lt;%s&gt; | Value = &lt;", SyntaxStrings[nod->type]);
         if (IS_INT (nod->type)) picprintf ("%d", nod->val);
         else if (IS_CHAR (nod->type)) picprintf ("%c", nod->val);
         else if (IS_DOUBLE (nod->type)) picprintf ("%lf", nod->val);
@@ -818,15 +831,24 @@ class Tree {
         #undef picprintf
     }
 
-    /// @brief Used to change CONTENTS of Nods without breaking hash
-    /// @param ptr Nod* of a Nod to change
-    /// @param action function to apply to ptr
-    void set (Nod* ptr, void (*action) (Nod* ptr)) {
+    unsigned int countHash () {
 
-        errCheck ();
+        hash = 0;
 
-        action (ptr);
+        countHashSeg (&canL, &canR);
+        if (dataCanL != NULL) countHashSeg (dataCanL, dataCanR);
 
-        countHash ();
+        return hash;
     }
+
+    bool verifyHash () {
+
+        if (countHash () != hash) {
+
+            errCode |= WRONG_HASH;
+            return false;
+        }
+        return true;
+    }
+
 };

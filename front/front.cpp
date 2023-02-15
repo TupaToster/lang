@@ -1,5 +1,22 @@
 #include "front.h"
 
+void dumpNodArray (Nod* array, size_t cap) {
+
+    assert (array != NULL);
+
+    flog (array);
+    for (int i = 0; i < cap; i++) {
+
+        flogprintf ("\t%p : Type = %d, val = %.8X ", array + i, array[i].type, array[i].val);
+        for (int j = 0; j < array[i].size; j++) {
+
+            flogprintf ("next[%d] : %p; ", j, array[i].next[j]);
+        }
+        flogprintf ("<br>");
+    }
+    flogprintf ("stop\n\n");
+}
+
 Nod* sizeUp (Nod* buffer, size_t* size, size_t* cap){
 
     if (*size < *cap) return buffer;
@@ -242,12 +259,160 @@ Nod* bufferize (const char* fileName, size_t* size, size_t* cap) {
     return buffer;
 }
 
+#define Token (*token)
+
 Tree Get_G (Nod* buffer, size_t size) {
 
     assert (buffer != NULL);
 
     Tree tree (buffer, size);
 
-    Get_1 (&tree, tree.getData (), 1);
+    dumpNodArray (tree.getData (), tree.getSize ());
+
+    Nod* token = tree.getData () + 1;
+
+    Get_1 (&tree, tree.getData (), &token);
+
+    return tree;
 }
 
+void Get_1 (Tree* tree, Nod* iter, Nod** token) {
+
+    assert (tree != NULL);
+    assert (iter != NULL);
+    assert (token != NULL);
+
+    Get_2 (tree, iter, token);
+
+    while (Token->type == PLUS) {
+
+        set (tree, {
+
+            Nod* target = iter->pop_back ();
+            iter->push_back (Token);
+            Token->prev = iter;
+            Token->push_back (target);
+            target->prev = Token;
+        })
+
+        Token++;
+
+        Get_2 (tree, Token - 1, token);
+    }
+}
+
+void Get_2 (Tree* tree, Nod* iter, Nod** token) {
+
+    assert (tree != NULL);
+    assert (iter != NULL);
+    assert (token != NULL);
+
+    Get_3 (tree, iter, token);
+
+    while (Token->type == MINUS) {
+
+        set (tree, {
+
+            Nod* target = iter->pop_back ();
+            iter->push_back (Token);
+            Token->prev = iter;
+            Token->push_back (target);
+            target->prev = Token;
+        })
+
+        Token++;
+
+        Get_3 (tree, Token - 1, token);
+    }
+}
+
+void Get_3 (Tree* tree, Nod* iter, Nod** token) {
+
+    assert (tree != NULL);
+    assert (iter != NULL);
+    assert (token != NULL);
+
+    Get_4 (tree, iter, token);
+
+    while (Token->type == MULT) {
+
+        set (tree, {
+
+            Nod* target = iter->pop_back ();
+            iter->push_back (Token);
+            Token->prev = iter;
+            Token->push_back (target);
+            target->prev = Token;
+        })
+
+        Token++;
+
+        Get_4 (tree, Token - 1, token);
+    }
+}
+
+void Get_4 (Tree* tree, Nod* iter, Nod** token) {
+
+    assert (tree != NULL);
+    assert (iter != NULL);
+    assert (token != NULL);
+
+    Get_5 (tree, iter, token);
+
+    while (Token->type == DIV) {
+
+        set (tree, {
+
+            Nod* target = iter->pop_back ();
+            iter->push_back (Token);
+            Token->prev = iter;
+            Token->push_back (target);
+            target->prev = Token;
+
+            Token++;
+
+            Get_5 (tree, Token - 1, token);
+        })
+    }
+}
+
+void Get_5 (Tree* tree, Nod* iter, Nod** token) {
+
+    if (Token->type == LB) {
+
+        Token++;
+        Get_1 (tree, iter, token);
+        assert (Token->type == RB);
+        Token++;
+    }
+    else Get_6 (tree, iter, token);
+}
+
+void Get_6 (Tree* tree, Nod* iter, Nod** token) {
+
+    assert (tree != NULL);
+    assert (iter != NULL);
+    assert (token != NULL);
+
+    if (IS_TYPE (Token->type) and (Token - tree->getData ()) < tree->getSize () - 1 and (Token + 1)->type == BLANK) {
+
+        set (tree, {
+
+            (Token + 1)->type = VAR;
+            (Token + 1)->prev = iter->prev;
+            Token->prev = Token + 1;
+            (Token + 1)->push_back (Token);
+            (Token + 1)->prev = iter;
+            iter->push_back (Token + 1);
+        })
+
+        Token += 2;
+
+        return;
+    }
+
+    assert (IS_TYPE (Token->type));
+    Token->prev = iter;
+    iter->push_back (Token);
+    Token++;
+}

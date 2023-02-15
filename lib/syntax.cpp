@@ -61,3 +61,45 @@ unsigned int Syntax[] = {
     0u           , //  "_NOD_TYPE_CNT"
 
 };
+
+const char* SyntaxStrings[] = {
+
+    "_BLANK",
+    "if",
+    "else",
+    "for",
+    "while",
+    "char",
+    "int",
+    "double",
+    "string",
+    "+",
+    "-",
+    "*",
+    "/",
+    "d/d",
+    "sin",
+    "cos",
+    "pow",
+    ";",
+    ",",
+    "_VAR",
+    "_FUNC",
+    "(",
+    ")",
+    "[",
+    "]",
+    "{",
+    "}",
+    "<",
+    ">",
+    "<=",
+    ">=",
+    "=",
+    "==",
+    "void",
+    "return",
+    "and",
+    "or",
+    "_NOD_TYPE_CNT"
+};

@@ -1,6 +1,1 @@
-int kok = 144;
-while (1) {
-
-    printf ("avtor pidaras");
-}
-return;
+(1488 + 4567 * 14 / 2 + 15) * 4
