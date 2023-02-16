@@ -47,7 +47,7 @@ int main (int argc, char* argv[]) {
     setvbuf (front_cpp, NULL, _IONBF, 0);
     setvbuf (front_h, NULL, _IONBF, 0);
 
-    fprintf (enumFile, WARNINGMESSAGE "enum NodType = {\n\n_BLANK = 0,\n");
+    fprintf (enumFile, WARNINGMESSAGE "enum NodType {\n\nBLANK = 0,\n");
     fprintf (syntax_cpp, WARNINGMESSAGE "const char* SyntaxStrings[] = {\n\n");
     fprintf (syntax_h, WARNINGMESSAGE "#pragma once\n"
                        "unsigned int countHash (void* from, void* to);\n"
@@ -83,7 +83,7 @@ int main (int argc, char* argv[]) {
             "    assert (tree != NULL);\n"
             "    assert (iter != NULL);\n"
             "    assert (token != NULL);\n"
-            "    Get_2 (tree, iter, token);\n"
+            "    Get_%d (tree, iter, token, varTable, funcTable);\n"
             "    while (Token->type == %d) {\n"
             "        set (tree, {\n"
             "            Nod* target = iter->pop_back ();\n"
@@ -93,9 +93,9 @@ int main (int argc, char* argv[]) {
             "            target->prev = Token;\n"
             "        })\n"
             "        Token++;\n"
-            "        Get_%d (tree, Token - 1, token);\n"
+            "        Get_%d (tree, Token - 1, token, varTable, funcTable);\n"
             "    }\n"
-            "}\n", enumCnt, enumCnt, enumCnt + 1);
+            "}\n", enumCnt, enumCnt + 1, enumCnt, enumCnt + 1);
 
             delta = 0;
             sscanf (src + iter, " )%n", &delta);
@@ -135,6 +135,13 @@ int main (int argc, char* argv[]) {
                 else fprintf (front_cpp, "%c", src[iter + i]);
             }
 
+            fprintf (front_cpp, "\n");
+
+            iter += delta + 1;
+
+            delta = 0;
+            sscanf (src + iter, " )%n", &delta);
+            if (delta == 0) return __LINE__;
             iter += delta;
 
             fprintf (front_h, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);

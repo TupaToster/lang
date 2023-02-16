@@ -57,7 +57,7 @@ int readNumber (Nod* *buffer, size_t* size, size_t* cap, char* code, char* word)
 
             *buffer = sizeUp (*buffer, size, cap);
             assert (*buffer != NULL);
-            (*buffer)[*size] = Nod (DOUBLE, val.LF);
+            (*buffer)[*size] = Nod (DOUBLE_CONST, val.LF);
             ++*size;
         }
         else {
@@ -67,7 +67,7 @@ int readNumber (Nod* *buffer, size_t* size, size_t* cap, char* code, char* word)
             *buffer = sizeUp (*buffer, size, cap);
             assert (*buffer != NULL);
 
-            (*buffer)[*size] = Nod (INT, val.I);
+            (*buffer)[*size] = Nod (INT_CONST, val.I);
             ++*size;
         }
     }
@@ -95,7 +95,7 @@ int readChar (Nod* *buffer, size_t* size, size_t* cap, char* code, char* word) {
         *buffer = sizeUp (*buffer, size, cap);
         assert (*buffer != NULL);
 
-        (*buffer)[*size] = Nod (CHAR, val.C);
+        (*buffer)[*size] = Nod (CHAR_CONST, val.C);
         ++*size;
 
     }
@@ -126,7 +126,7 @@ int readStr (Nod* *buffer, size_t* size, size_t* cap, char* code, char* word) {
         *buffer = sizeUp (*buffer, size, cap);
         assert (*buffer != NULL);
 
-        (*buffer)[*size] = Nod (STR, val.STR);
+        (*buffer)[*size] = Nod (STR_CONST, val.STR);
         ++*size;
 
         free (val.STR);
@@ -279,146 +279,147 @@ Tree Get_G (Nod* buffer, size_t size) {
     return tree;
 }
 
-void Get_1 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+// void Get_1 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
 
-    assert (tree != NULL);
-    assert (iter != NULL);
-    assert (token != NULL);
+//     assert (tree != NULL);
+//     assert (iter != NULL);
+//     assert (token != NULL);
 
-    Get_2 (tree, iter, token);
+//     Get_2 (tree, iter, token);
 
-    while (Token->type == PLUS) {
+//     while (Token->type == PLUS) {
 
-        set (tree, {
+//         set (tree, {
 
-            Nod* target = iter->pop_back ();
-            iter->push_back (Token);
-            Token->prev = iter;
-            Token->push_back (target);
-            target->prev = Token;
-        })
+//             Nod* target = iter->pop_back ();
+//             iter->push_back (Token);
+//             Token->prev = iter;
+//             Token->push_back (target);
+//             target->prev = Token;
+//         })
 
-        Token++;
+//         Token++;
 
-        Get_2 (tree, Token - 1, token);
-    }
-}
+//         Get_2 (tree, Token - 1, token);
+//     }
+// }
 
-void Get_2 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+// void Get_2 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
 
-    assert (tree != NULL);
-    assert (iter != NULL);
-    assert (token != NULL);
+//     assert (tree != NULL);
+//     assert (iter != NULL);
+//     assert (token != NULL);
 
-    Get_3 (tree, iter, token);
+//     Get_3 (tree, iter, token);
 
-    while (Token->type == MINUS) {
+//     while (Token->type == MINUS) {
 
-        set (tree, {
+//         set (tree, {
 
-            Nod* target = iter->pop_back ();
-            iter->push_back (Token);
-            Token->prev = iter;
-            Token->push_back (target);
-            target->prev = Token;
-        })
+//             Nod* target = iter->pop_back ();
+//             iter->push_back (Token);
+//             Token->prev = iter;
+//             Token->push_back (target);
+//             target->prev = Token;
+//         })
 
-        Token++;
+//         Token++;
 
-        Get_3 (tree, Token - 1, token);
-    }
-}
+//         Get_3 (tree, Token - 1, token);
+//     }
+// }
 
-void Get_3 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+// void Get_3 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
 
-    assert (tree != NULL);
-    assert (iter != NULL);
-    assert (token != NULL);
+//     assert (tree != NULL);
+//     assert (iter != NULL);
+//     assert (token != NULL);
 
-    Get_4 (tree, iter, token);
+//     Get_4 (tree, iter, token);
 
-    while (Token->type == MULT) {
+//     while (Token->type == MULT) {
 
-        set (tree, {
+//         set (tree, {
 
-            Nod* target = iter->pop_back ();
-            iter->push_back (Token);
-            Token->prev = iter;
-            Token->push_back (target);
-            target->prev = Token;
-        })
+//             Nod* target = iter->pop_back ();
+//             iter->push_back (Token);
+//             Token->prev = iter;
+//             Token->push_back (target);
+//             target->prev = Token;
+//         })
 
-        Token++;
+//         Token++;
 
-        Get_4 (tree, Token - 1, token);
-    }
-}
+//         Get_4 (tree, Token - 1, token);
+//     }
+// }
 
-void Get_4 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+// void Get_4 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
 
-    assert (tree != NULL);
-    assert (iter != NULL);
-    assert (token != NULL);
+//     assert (tree != NULL);
+//     assert (iter != NULL);
+//     assert (token != NULL);
 
-    Get_5 (tree, iter, token);
+//     Get_5 (tree, iter, token);
 
-    while (Token->type == DIV) {
+//     while (Token->type == DIV) {
 
-        set (tree, {
+//         set (tree, {
 
-            Nod* target = iter->pop_back ();
-            iter->push_back (Token);
-            Token->prev = iter;
-            Token->push_back (target);
-            target->prev = Token;
+//             Nod* target = iter->pop_back ();
+//             iter->push_back (Token);
+//             Token->prev = iter;
+//             Token->push_back (target);
+//             target->prev = Token;
 
-            Token++;
+//             Token++;
 
-            Get_5 (tree, Token - 1, token);
-        })
-    }
-}
+//             Get_5 (tree, Token - 1, token);
+//         })
+//     }
+// }
 
-void Get_5 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+// void Get_5 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
 
-    if (Token->type == LB) {
+//     if (Token->type == LB) {
 
-        Token++;
-        Get_1 (tree, iter, token);
-        assert (Token->type == RB);
-        Token++;
-    }
-    else Get_6 (tree, iter, token);
-}
+//         Token++;
+//         Get_1 (tree, iter, token);
+//         assert (Token->type == RB);
+//         Token++;
+//     }
+//     else Get_6 (tree, iter, token);
+// }
 
-void Get_6 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+// void Get_6 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
 
-    assert (tree != NULL);
-    assert (iter != NULL);
-    assert (token != NULL);
+//     assert (tree != NULL);
+//     assert (iter != NULL);
+//     assert (token != NULL);
 
 
-    // То что 12 x; создаст целую переменную со значением 12 является не багом а фичей
-    if (IS_TYPE (Token->type) and (Token - tree->getData ()) < tree->getSize () - 1 and (Token + 1)->type == BLANK) {
+//     // То что 12 x; создаст целую переменную со значением 12 является не багом а фичей
+//     // if (IS_TYPE (Token->type) and (Token - tree->getData ()) < tree->getSize () - 1 and (Token + 1)->type == BLANK) {
 
-        set (tree, {
+//     //     set (tree, {
 
-            (Token + 1)->type = VAR;
-            (Token + 1)->prev = iter->prev;
-            Token->prev = Token + 1;
-            (Token + 1)->push_back (Token);
-            (Token + 1)->prev = iter;
-            iter->push_back (Token + 1);
-        })
+//     //         (Token + 1)->type = VAR;
+//     //         (Token + 1)->prev = iter->prev;
+//     //         Token->prev = Token + 1;
+//     //         (Token + 1)->push_back (Token);
+//     //         (Token + 1)->prev = iter;
+//     //         iter->push_back (Token + 1);
+//     //     })
 
-        Token += 2;
+//     //     Token += 2;
 
-        return;
-    }
+//     //     return;
+//     // }
 
-    assert (IS_TYPE (Token->type));
-    Token->prev = iter;
-    iter->push_back (Token);
-    Token++;
-}
+//     assert (IS_TYPE (Token->type));
+//     Token->prev = iter;
+//     iter->push_back (Token);
+//     Token++;
+// }
 
+#include "front_autogen.cpp"

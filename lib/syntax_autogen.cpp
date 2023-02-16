@@ -6,8 +6,12 @@ const char* SyntaxStrings[] = {
 "-",
 "*",
 "/",
-"(",
 ")",
+"_INT_CONST",
+"_DOUBLE_CONST",
+"_CHAR_CONST",
+"_STR_CONST",
+"_LB",
 "_NOD_TYPE_CNT"
 };
 
@@ -18,7 +22,11 @@ unsigned int Syntax[] = {
 45u,
 42u,
 47u,
-40u,
 41u,
+0u,
+0u,
+0u,
+0u,
+0u,
 0u
 };

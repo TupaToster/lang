@@ -7,5 +7,13 @@ void Get_3 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* 
 
 void Get_4 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
 
+void Get_5 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
 void Get_6 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_7 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_8 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_9 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
 

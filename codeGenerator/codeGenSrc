@@ -6,17 +6,59 @@ DEFCMD (MULT, "*", 1)
 
 DEFCMD (DIV, "/", 1)
 
-DEFCMD (LB, "(", 0)
-
 DEFCMD (RB, ")", 2, {
 
     if (Token->type == LB) {
 
         Token++;
-        Get_1 (Tree, iter, token);
+        Get_1 (tree, iter, token, varTable, funcTable);
         assert (Token->type == RB);
         Token++;
     }
-    else call_next (tree, iter, token);
+    else call_next (tree, iter, token, varTable, funcTable);
 })
 
+DEFCMD (INT_CONST, "_INT_CONST", 2, {
+
+    if (Token->type == INT_CONST) {
+
+        Token->prev = iter;
+        iter->push_back (Token);
+        Token++;
+    }
+    else call_next (tree, iter, token, varTable, funcTable);
+})
+
+DEFCMD (DOUBLE_CONST, "_DOUBLE_CONST", 2, {
+
+    if (Token->type = DOUBLE_CONST) {
+
+        Token->prev = iter;
+        iter->push_back (Token);
+        Token++;
+    }
+    else call_next (tree, iter, token, varTable, funcTable);
+})
+
+DEFCMD (CHAR_CONST, "_CHAR_CONST", 2, {
+
+    if (Token->type == CHAR_CONST) {
+
+        Token->prev = iter;
+        iter->push_back (Token);
+        Token++;
+    }
+    else call_next (tree, iter, token, varTable, funcTable);
+})
+
+
+DEFCMD (STR_CONST, "_STR_CONST", 2, {
+
+    assert (Token->type == STR_CONST);
+
+    Token->prev = iter;
+    iter->push_back (Token);
+    Token++;
+})
+
+DEFCMD (LB, "_LB", 0)

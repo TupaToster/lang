@@ -7,6 +7,8 @@
 #include <string.h>
 #include "../lib/nbtree.h"
 
+#include "../lib/syntax_autogen.h"
+
 #define SERVICE_SYMBOLS "]+[&/;,();}<>=--"
 
 size_t getFileSize (const char* fileName);
@@ -29,16 +31,6 @@ int readService (Nod* *buffer, size_t* size, size_t* cap, char* code, char* word
 
 Tree Get_G (Nod* buffer, size_t size);
 
-void Get_1 (Tree* tree, Nod* iter, Nod** token);
-
-void Get_2 (Tree* tree, Nod* iter, Nod** token);
-
-void Get_3 (Tree* tree, Nod* iter, Nod** token);
-
-void Get_4 (Tree* tree, Nod* iter, Nod** token);
-
-void Get_5 (Tree* tree, Nod* iter, Nod** token);
-
-void Get_6 (Tree* tree, Nod* iter, Nod** token);
+#include "front_autogen.h"
 
 void dumpNodArray (Nod* array, size_t cap);
