@@ -5,6 +5,7 @@
 #include <assert.h>
 #include "flog.h"
 #include "syntax.h"
+#include "stack.h"
 
 #ifndef NDEBUG
 #define dump(clas) (clas).dumpInside (#clas, __FILE__, __FUNCTION__, __LINE__)
@@ -57,7 +58,11 @@ enum NodType {
     RETURN = 34,
     AND = 35,
     OR = 36,
-    NOD_TYPE_CNT = 37
+    INT_T = 37,
+    DOUBLE_T = 38,
+    CHAR_T = 39,
+    STR_T = 40,
+    NOD_TYPE_CNT = 41
 };
 
 union NodVal {
@@ -681,6 +686,26 @@ class Tree {
         }
     }
 
+    void DTOR () {
+
+        recDtor (data);
+
+        setPoison (&canL);
+        setPoison (&hash);
+        setPoison (&errCode);
+        setPoison (&cap);
+        setPoison (&size);
+        setPoison (&vacant);
+        setPoison (&data);
+        if (dataCanL != NULL) setPoison (dataCanL);
+        if (dataCanR != NULL) setPoison (dataCanR);
+        setPoison (&dataCanR);
+        setPoison (&canR);
+
+        free (dataCanL);
+        setPoison (&dataCanL);
+    }
+
     Nod* add (Nod val, Nod* prev = NULL, size_t index = -1) {
 
         errCheck ();
@@ -760,6 +785,8 @@ class Tree {
         vacant = data + size;
 
         countHash ();
+
+        invariant = resize (invariant);
 
         return invariant;
     }
@@ -851,4 +878,55 @@ class Tree {
         return true;
     }
 
+};
+
+struct NameTable {
+
+    Stack<Nod*> table;
+    Stack<unsigned int> hashTable;
+    Stack<int> cnt;
+
+    void addElem (Nod* ptr, bool newLayer = false) {
+
+        assert (ptr != NULL);
+
+        if (cnt.getSize () == 0) {
+
+            cnt.push (0);
+        }
+
+        table.push (ptr);
+        hashTable.push (countHash (ptr->val.STR, ptr->val.STR + strlen (ptr->val.STR)));
+        if (newLayer) {
+
+            cnt.push (1);
+            return;
+        }
+        int temp = cnt.pop ();
+        temp++;
+        cnt.push (temp);
+    }
+
+    Nod* findByName (char* varName) {
+
+        unsigned int hash = countHash (varName, varName + strlen (varName));
+
+        for (int i = 0; i < hashTable.getSize (); i++) {
+
+            if (hashTable.getData ()[i] == hash) {
+
+                return table.getData ()[i];
+            }
+        }
+
+        return NULL;
+
+    }
+
+    void DTOR () {
+
+        table.DTOR ();
+        hashTable.DTOR ();
+        cnt.DTOR ();
+    }
 };

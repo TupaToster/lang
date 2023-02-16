@@ -1,0 +1,6 @@
+DEFCMD (INT_T, "int", 1)
+
+DEFCMD (DOUBLE_T, "double", 0, {
+
+    printf ("lol    14");
+})

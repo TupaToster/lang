@@ -20,7 +20,33 @@ FILE* logOutf = NULL;
 // y - long long
 // h - char
 
+const unsigned int HashMult = 107u;
+
+unsigned int countHash (void* from, void* to) {
+
+    assert (from != NULL);
+    assert (to != NULL);
+    assert (from <= to);
+
+    unsigned int hash = 0;
+
+    for (; from < to; from = (char*) from + 1) {
+
+        hash *= HashMult;
+        hash += *(unsigned char*)from;
+    }
+
+    return hash;
+}
+
 void flogIntern (const void* val, const char* varType, const char* varName, size_t varSize, const char* fileName, const char* funcName, size_t line) {
+
+    assert (val != NULL);
+    assert (varType != NULL);
+    assert (varName != NULL);
+    assert (varSize > 0);
+    assert (fileName != NULL);
+    assert (line > 0);
 
     fprintf (logOutf, "<pre>In file %s, function %s, line %u : %s = ", fileName, funcName, line, varName);
 
@@ -44,6 +70,8 @@ void flogIntern (const void* val, const char* varType, const char* varName, size
 }
 
 const char* getFormatIntern (const char* varType) {
+
+    assert (varType != NULL);
 
     if (!strcmp (varType, "Pc") || !strcmp (varType, "PKc"))    return "%s";
     else if (varType[0] == 'P') return "%p";

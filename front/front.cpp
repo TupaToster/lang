@@ -267,16 +267,19 @@ Tree Get_G (Nod* buffer, size_t size) {
 
     Tree tree (buffer, size);
 
+    NameTable varTable;
+    NameTable funcTable;
+
     dumpNodArray (tree.getData (), tree.getSize ());
 
     Nod* token = tree.getData () + 1;
 
-    Get_1 (&tree, tree.getData (), &token);
+    Get_1 (&tree, tree.getData (), &token, &varTable, &funcTable);
 
     return tree;
 }
 
-void Get_1 (Tree* tree, Nod* iter, Nod** token) {
+void Get_1 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
 
     assert (tree != NULL);
     assert (iter != NULL);
@@ -301,7 +304,7 @@ void Get_1 (Tree* tree, Nod* iter, Nod** token) {
     }
 }
 
-void Get_2 (Tree* tree, Nod* iter, Nod** token) {
+void Get_2 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
 
     assert (tree != NULL);
     assert (iter != NULL);
@@ -326,7 +329,7 @@ void Get_2 (Tree* tree, Nod* iter, Nod** token) {
     }
 }
 
-void Get_3 (Tree* tree, Nod* iter, Nod** token) {
+void Get_3 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
 
     assert (tree != NULL);
     assert (iter != NULL);
@@ -351,7 +354,7 @@ void Get_3 (Tree* tree, Nod* iter, Nod** token) {
     }
 }
 
-void Get_4 (Tree* tree, Nod* iter, Nod** token) {
+void Get_4 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
 
     assert (tree != NULL);
     assert (iter != NULL);
@@ -376,7 +379,7 @@ void Get_4 (Tree* tree, Nod* iter, Nod** token) {
     }
 }
 
-void Get_5 (Tree* tree, Nod* iter, Nod** token) {
+void Get_5 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
 
     if (Token->type == LB) {
 
@@ -388,12 +391,14 @@ void Get_5 (Tree* tree, Nod* iter, Nod** token) {
     else Get_6 (tree, iter, token);
 }
 
-void Get_6 (Tree* tree, Nod* iter, Nod** token) {
+void Get_6 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
 
     assert (tree != NULL);
     assert (iter != NULL);
     assert (token != NULL);
 
+
+    // То что 12 x; создаст целую переменную со значением 12 является не багом а фичей
     if (IS_TYPE (Token->type) and (Token - tree->getData ()) < tree->getSize () - 1 and (Token + 1)->type == BLANK) {
 
         set (tree, {
@@ -416,3 +421,4 @@ void Get_6 (Tree* tree, Nod* iter, Nod** token) {
     iter->push_back (Token);
     Token++;
 }
+

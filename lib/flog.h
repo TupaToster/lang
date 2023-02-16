@@ -4,10 +4,15 @@
 #include <typeinfo>
 #include <time.h>
 #include <string.h>
+#include <assert.h>
 
 // DEFINE NDEBUG TO DISABLE LOGS
 
 extern FILE* logOutf;
+
+extern const unsigned int HashMult;
+
+unsigned int countHash (void* from, void* to);
 
 void flogIntern (const void* val, const char* varType, const char* varName, size_t varSize, const char* fileName, const char* funcName, size_t line);
 

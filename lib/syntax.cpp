@@ -1,24 +1,5 @@
 #include "syntax.h"
 
-const unsigned int HashMult = 107u;
-
-unsigned int countHash (void* from, void* to) {
-
-    assert (from != NULL);
-    assert (to != NULL);
-    assert (from <= to);
-
-    unsigned int hash = 0;
-
-    for (; from < to; from = (char*) from + 1) {
-
-        hash *= HashMult;
-        hash += *(unsigned char*)from;
-    }
-
-    return hash;
-}
-
 unsigned int Syntax[] = {
 
     0u           , //  "_BLANK"
@@ -69,10 +50,10 @@ const char* SyntaxStrings[] = {
     "else",
     "for",
     "while",
-    "char",
-    "int",
-    "double",
-    "string",
+    "_CHAR",
+    "_INT",
+    "_DOUBLE",
+    "_STRING",
     "+",
     "-",
     "*",
@@ -101,5 +82,9 @@ const char* SyntaxStrings[] = {
     "return",
     "and",
     "or",
+    "int",
+    "double",
+    "char",
+    "string",
     "_NOD_TYPE_CNT"
 };

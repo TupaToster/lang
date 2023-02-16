@@ -17,9 +17,13 @@ cpu: $(CPU:.cpp=.o) $(LIB:.cpp=.o)
 asm: $(ASM:.cpp=.o) $(LIB:.cpp=.o)
 	$(CC) $(CFLAGS) $(ASM:asm/%.cpp=%.o) $(LIB:lib/%.cpp=%.o) -o asm.exe
 
-test: clean
-	$(CC) $(CFLAGS) main.cpp lib/flog.cpp front/front.cpp lib/syntax.cpp lib/text.cpp
+test: clean codeGen
+	$(CC) $(CFLAGS) main.cpp lib/flog.cpp front/front.cpp lib/syntax_autogen.cpp lib/text.cpp
 	./a
+
+codeGen:
+	$(CC) $(CFLAGS) codeGenerator/codeGenerator.cpp lib/flog.cpp lib/text.cpp -o codeGenerator/codeGen.exe
+	./codeGenerator/codeGen.exe codeGenerator/codeGenSrc
 
 clean:
 	rm -rf */*.o *.exe* */*.d *.o *.d */*.png *.png *.dot

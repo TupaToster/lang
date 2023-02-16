@@ -340,4 +340,14 @@ class Stack {
         countHash ();
         return retVal;
     }
+
+    elem_t* getData () {
+
+        return data;
+    }
+
+    int getSize () {
+
+        return size;
+    }
 };
