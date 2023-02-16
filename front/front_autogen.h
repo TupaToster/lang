@@ -3,3 +3,9 @@ void Get_1 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* 
 
 void Get_2 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
 
+void Get_3 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_4 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_6 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+

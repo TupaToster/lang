@@ -1,6 +1,22 @@
-DEFCMD (INT_T, "int", 1)
+DEFCMD (PLUS, "+", 1)
 
-DEFCMD (DOUBLE_T, "double", 0, {
+DEFCMD (MINUS, "-", 1)
 
-    printf ("lol    14");
+DEFCMD (MULT, "*", 1)
+
+DEFCMD (DIV, "/", 1)
+
+DEFCMD (LB, "(", 0)
+
+DEFCMD (RB, ")", 2, {
+
+    if (Token->type == LB) {
+
+        Token++;
+        Get_1 (Tree, iter, token);
+        assert (Token->type == RB);
+        Token++;
+    }
+    else call_next (tree, iter, token);
 })
+

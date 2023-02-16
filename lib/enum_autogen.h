@@ -2,7 +2,11 @@
 enum NodType = {
 
 _BLANK = 0,
-INT_T = 1,
-DOUBLE_T = 2,
-NOD_TYPE_CNT = 3
+PLUS = 1,
+MINUS = 2,
+MULT = 3,
+DIV = 4,
+LB = 5,
+RB = 6,
+NOD_TYPE_CNT = 7
 };

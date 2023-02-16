@@ -104,7 +104,7 @@ int main (int argc, char* argv[]) {
 
             fprintf (front_h, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
         }
-        else {
+        else if (intInput == 2){
 
             fprintf (front_cpp, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {\n"
             "    assert (tree != NULL);\n"
@@ -139,6 +139,14 @@ int main (int argc, char* argv[]) {
 
             fprintf (front_h, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
         }
+        else if (intInput == 0){
+
+            delta = 0;
+            sscanf (src + iter, " )%n", &delta);
+            if (delta == 0) return __LINE__;
+            iter += delta;
+        }
+        else return __LINE__;
 
         enumCnt++;
     }
