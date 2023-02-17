@@ -2,6 +2,13 @@
 const char* SyntaxStrings[] = {
 
 "_BLANK",
+";",
+"=",
+"<",
+">",
+"==",
+"<=",
+">=",
 "+",
 "-",
 "*",
@@ -11,13 +18,28 @@ const char* SyntaxStrings[] = {
 "_DOUBLE_CONST",
 "_CHAR_CONST",
 "_STR_CONST",
-"_LB",
+"_FUNC",
+"int",
+"double",
+"char",
+"string",
+"(",
+"{",
+"}",
+",",
 "_NOD_TYPE_CNT"
 };
 
 unsigned int Syntax[] = {
 
 0u,
+59u,
+61u,
+60u,
+62u,
+6588u,
+6481u,
+6695u,
 43u,
 45u,
 42u,
@@ -28,5 +50,13 @@ unsigned int Syntax[] = {
 0u,
 0u,
 0u,
+1214031u,
+4201789717u,
+122480446u,
+487987757u,
+40u,
+123u,
+125u,
+44u,
 0u
 };

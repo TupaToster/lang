@@ -1,3 +1,25 @@
+DEFCMD (SC, ";", 2, {
+
+    if (Token->type == SC) {
+
+        Token++;
+        return;
+    }
+    else call_next (tree, iter, token, varTable, funcTable);
+})
+
+DEFCMD (EQ, "=", 1)
+
+DEFCMD (LESS, "<", 1)
+
+DEFCMD (GREATER, ">", 1)
+
+DEFCMD (EQEQ, "==", 1)
+
+DEFCMD (LESSEQ, "<=", 1)
+
+DEFCMD (GREATEREQ, ">=", 1)
+
 DEFCMD (PLUS, "+", 1)
 
 DEFCMD (MINUS, "-", 1)
@@ -10,55 +32,89 @@ DEFCMD (RB, ")", 2, {
 
     if (Token->type == LB) {
 
-        Token++;
-        Get_1 (tree, iter, token, varTable, funcTable);
-        assert (Token->type == RB);
-        Token++;
+        set (tree, {
+            Token++;
+            Get_1 (tree, iter, token, varTable, funcTable);
+            assert (Token->type == RB);
+            Token++;
+        })
     }
     else call_next (tree, iter, token, varTable, funcTable);
 })
 
-DEFCMD (INT_CONST, "_INT_CONST", 2, {
+DEFCMD (INT_CONST, "_INT_CONST", 3)
 
-    if (Token->type == INT_CONST) {
+DEFCMD (DOUBLE_CONST, "_DOUBLE_CONST", 3)
 
-        Token->prev = iter;
-        iter->push_back (Token);
-        Token++;
-    }
-    else call_next (tree, iter, token, varTable, funcTable);
+DEFCMD (CHAR_CONST, "_CHAR_CONST", 3)
+
+DEFCMD (STR_CONST, "_STR_CONST", 3)
+
+DEFCMD (FUNC, "_FUNC", 2, {
+
+        if (IS_TYPE (Token->type)) {
+
+            assert (inSize - 1);
+            assert ((Token + 1)->type == BLANK);
+
+            if (Token - tree->getData () == tree->getSize () - 2 or (Token + 2)->type != LB) {
+
+                // call_next (tree, iter, token, varTable, funcTable);
+                return;
+            }
+
+            Nod* funcPtr = Token + 1;
+
+            set (tree, {
+
+                (Token + 1)->type = FUNC;
+                (Token + 1)->push_back (Token);
+                Token->prev = Token + 1;
+                iter->push_back (Token + 1);
+                (Token + 1)->prev = iter;
+            })
+
+            Token += 2;
+
+            assert (Token->type == LB);
+
+            Token++;
+
+            assert (inSize);
+            while (Token->type != RB) {
+
+                // call_next (tree, iter, token, varTable, funcTable);
+                assert (inSize);
+                assert (Token->type == COMA);
+                Token++;
+            }
+
+            Token++;
+            assert (inSize);
+            assert (Token->type == LFB);
+
+            Token++;
+            while (Token->type != RFB) Get_1 (tree, funcPtr, token, varTable, funcTable);
+
+            assert (inSize);
+            assert (Token->type == RFB);
+            Token++;
+        }
+        // else call_next (tree, iter, token, varTable, funcTable);
 })
 
-DEFCMD (DOUBLE_CONST, "_DOUBLE_CONST", 2, {
+DEFCMD (INT, "int", 0)
 
-    if (Token->type = DOUBLE_CONST) {
+DEFCMD (DOUBLE, "double", 0)
 
-        Token->prev = iter;
-        iter->push_back (Token);
-        Token++;
-    }
-    else call_next (tree, iter, token, varTable, funcTable);
-})
+DEFCMD (CHAR, "char", 0)
 
-DEFCMD (CHAR_CONST, "_CHAR_CONST", 2, {
+DEFCMD (STR, "string", 0)
 
-    if (Token->type == CHAR_CONST) {
+DEFCMD (LB, "(", 0)
 
-        Token->prev = iter;
-        iter->push_back (Token);
-        Token++;
-    }
-    else call_next (tree, iter, token, varTable, funcTable);
-})
+DEFCMD (LFB, "{", 0)
 
+DEFCMD (RFB, "}", 0)
 
-DEFCMD (STR_CONST, "_STR_CONST", 2, {
-
-    assert (Token->type == STR_CONST);
-
-    Token->prev = iter;
-    iter->push_back (Token);
-    Token++;
-})
-
-DEFCMD (LB, "_LB", 0)
+DEFCMD (COMA, ",", 0)

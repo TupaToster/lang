@@ -69,7 +69,7 @@ int main (int argc, char* argv[]) {
         iter += delta;
         fprintf (enumFile, "%s = %d,\n", word, enumCnt);
 
-        if (sscanf (src + iter, " , \"%[^, \"]\"%n", word, &delta) < 1) return __LINE__;
+        if (sscanf (src + iter, " , \"%[^\"]\"%n", word, &delta) < 1) return __LINE__;
         iter += delta;
 
         SyntaxStrings[enumCnt] = strdup (word);
@@ -83,6 +83,7 @@ int main (int argc, char* argv[]) {
             "    assert (tree != NULL);\n"
             "    assert (iter != NULL);\n"
             "    assert (token != NULL);\n"
+            "    assert (inSize);\n\n"
             "    Get_%d (tree, iter, token, varTable, funcTable);\n"
             "    while (Token->type == %d) {\n"
             "        set (tree, {\n"
@@ -109,7 +110,8 @@ int main (int argc, char* argv[]) {
             fprintf (front_cpp, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {\n"
             "    assert (tree != NULL);\n"
             "    assert (iter != NULL);\n"
-            "    assert (token != NULL);", enumCnt);
+            "    assert (token != NULL);\n"
+            "    assert (inSize);\n\n", enumCnt);
 
             delta = 0;
             sscanf (src + iter, " , {%n", &delta);
@@ -138,6 +140,30 @@ int main (int argc, char* argv[]) {
             fprintf (front_cpp, "\n");
 
             iter += delta + 1;
+
+            delta = 0;
+            sscanf (src + iter, " )%n", &delta);
+            if (delta == 0) return __LINE__;
+            iter += delta;
+
+            fprintf (front_h, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
+        }
+        else if (intInput == 3) {
+
+            fprintf (front_cpp, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {\n"
+            "    assert (tree != NULL);\n"
+            "    assert (iter != NULL);\n"
+            "    assert (token != NULL);\n"
+            "    assert (inSize);\n\n"
+            "    if (Token->type == %d) {\n"
+            "        set (tree, {\n"
+            "            Token->prev = iter;\n"
+            "            iter->push_back (Token);\n"
+            "            Token++;\n"
+            "        })\n"
+            "    }\n"
+            "    else Get_%d (tree, iter, token, varTable, funcTable);\n"
+            "}\n", enumCnt, enumCnt, enumCnt + 1);
 
             delta = 0;
             sscanf (src + iter, " )%n", &delta);

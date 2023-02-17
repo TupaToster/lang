@@ -11,6 +11,8 @@
 
 #define SERVICE_SYMBOLS "]+[&/;,();}<>=--"
 
+#define IS_TYPE(val) (val == INT or val == DOUBLE or val == CHAR or val == STR)
+
 size_t getFileSize (const char* fileName);
 
 char* bufferizeFile (const char* fileName);

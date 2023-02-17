@@ -94,11 +94,10 @@ union NodVal {
 
 //Defines to determine how to interpret NodVal depending on NodType
 
-#define IS_INT(type) (type == INT_CONST)
-#define IS_DOUBLE(type) (type == DOUBLE_CONST)
-#define IS_CHAR(type) (type == CHAR_CONST)
-#define IS_STR(type) (type == BLANK)
-#define IS_TYPE(type) (IS_INT (type) or IS_DOUBLE (type) or IS_CHAR(type))
+#define IS_DUMP_INT(type) (type == INT_CONST)
+#define IS_DUMP_DOUBLE(type) (type == DOUBLE_CONST)
+#define IS_DUMP_CHAR(type) (type == CHAR_CONST)
+#define IS_DUMP_STR(type) (type == BLANK or type == STR_CONST)
 
 #define MAX_WORD_LEN 100
 
@@ -244,7 +243,7 @@ struct Nod {
         prev = src->prev;
         num = src->num;
 
-        if (! IS_STR (type)) val = src->val;
+        if (! IS_DUMP_STR (type)) val = src->val;
         else val = src->val.STR;
 
         cap = src->cap;
@@ -282,7 +281,7 @@ struct Nod {
         prev = src->prev;
         num = src->num;
 
-        if (!IS_STR (type)) val = src->val;
+        if (!IS_DUMP_STR (type)) val = src->val;
         else val = src->val.STR;
 
         cap = src->cap;
@@ -573,6 +572,25 @@ class Tree {
         iter->DTOR ();
     }
 
+    void nodDumpFunc (FILE* outputFile, const Nod* nod) {
+
+        #define picprintf(...) fprintf (outputFile, __VA_ARGS__)
+
+        if      (strcmp (SyntaxStrings[nod->type], "<") == 0) picprintf ("Type = &lt;&lt;&gt; | Value = &lt;");
+        else if (strcmp (SyntaxStrings[nod->type], ">") == 0) picprintf ("Type = &lt;&gt;&gt; | Value = &lt;");
+        else if (strcmp (SyntaxStrings[nod->type], "<=") == 0) picprintf ("Type = &lt;&lt;=&gt; | Value = &lt;");
+        else if (strcmp (SyntaxStrings[nod->type], ">=") == 0) picprintf ("Type = &lt;&gt;=&gt; | Value = &lt;");
+        else picprintf ("Type = &lt;%s&gt; | Value = &lt;", SyntaxStrings[nod->type]);
+
+        if (IS_DUMP_INT (nod->type)) picprintf ("%d", nod->val);
+        else if (IS_DUMP_CHAR (nod->type)) picprintf ("%c", nod->val);
+        else if (IS_DUMP_DOUBLE (nod->type)) picprintf ("%lf", nod->val);
+        else if (IS_DUMP_STR (nod->type)) picprintf ("%s", nod->val);
+        picprintf ("&gt;");
+
+        #undef picprintf
+    }
+
     public:
 
     void dumpNodArray (Nod* array, size_t cap) {
@@ -844,20 +862,6 @@ class Tree {
         countHash ();
 
         return invariant;
-    }
-
-    void nodDumpFunc (FILE* outputFile, const Nod* nod) {
-
-        #define picprintf(...) fprintf (outputFile, __VA_ARGS__)
-
-        picprintf ("Type = &lt;%s&gt; | Value = &lt;", SyntaxStrings[nod->type]);
-        if (IS_INT (nod->type)) picprintf ("%d", nod->val);
-        else if (IS_CHAR (nod->type)) picprintf ("%c", nod->val);
-        else if (IS_DOUBLE (nod->type)) picprintf ("%lf", nod->val);
-        else if (IS_STR (nod->type)) picprintf ("%s", nod->val);
-        picprintf ("&gt;");
-
-        #undef picprintf
     }
 
     unsigned int countHash () {

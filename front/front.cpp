@@ -261,6 +261,8 @@ Nod* bufferize (const char* fileName, size_t* size, size_t* cap) {
 
 #define Token (*token)
 
+#define inSize Token - tree->getData () < tree->getSize ()
+
 Tree Get_G (Nod* buffer, size_t size) {
 
     assert (buffer != NULL);
@@ -274,7 +276,8 @@ Tree Get_G (Nod* buffer, size_t size) {
 
     Nod* token = tree.getData () + 1;
 
-    Get_1 (&tree, tree.getData (), &token, &varTable, &funcTable);
+    while (token - tree.getData () < tree.getSize ()) Get_1 (&tree, tree.getData (), &token, &varTable, &funcTable);
+
 
     return tree;
 }
