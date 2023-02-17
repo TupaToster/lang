@@ -57,9 +57,9 @@ DEFCMD (FUNC, "_FUNC", 2, {
             assert (inSize - 1);
             assert ((Token + 1)->type == BLANK);
 
-            if (Token - tree->getData () == tree->getSize () - 2 or (Token + 2)->type != LB) {
+            if (inSize - 2 and !(inSize - 3) or (Token + 2)->type != LB) {
 
-                // call_next (tree, iter, token, varTable, funcTable);
+                call_next (tree, iter, token, varTable, funcTable);
                 return;
             }
 
@@ -83,8 +83,9 @@ DEFCMD (FUNC, "_FUNC", 2, {
             assert (inSize);
             while (Token->type != RB) {
 
-                // call_next (tree, iter, token, varTable, funcTable);
+                call_next (tree, funcPtr, token, varTable, funcTable);
                 assert (inSize);
+                if (Token->type == RB) break;
                 assert (Token->type == COMA);
                 Token++;
             }
@@ -100,7 +101,55 @@ DEFCMD (FUNC, "_FUNC", 2, {
             assert (Token->type == RFB);
             Token++;
         }
-        // else call_next (tree, iter, token, varTable, funcTable);
+        else call_next (tree, iter, token, varTable, funcTable);
+})
+
+DEFCMD (VAR, "_VAR", 2, {
+
+    if (IS_TYPE (Token->type)){
+
+        Token++;
+        assert (inSize);
+        assert (Token->type == BLANK);
+
+        set (tree, {
+
+            Token->type = VAR;
+            Token->push_back (Token - 1);
+            (Token -1)->prev = Token;
+            Token->prev = iter;
+            iter->push_back (Token);
+        })
+
+        Token++;
+
+        if (inSize and Token->type == EQ) {
+
+            Token++;
+            assert (inSize);
+            if (INT_MATCH ((Token - 3)->type, Token->type) or
+                DOUBLE_MATCH ((Token - 3)->type, Token->type) or
+                CHAR_MATCH ((Token - 3)->type, Token->type)) {
+
+                    set (tree, {
+
+                        (Token - 3)->val = Token->val;
+                    })
+                }
+            else if (STR_MATCH ((Token - 3)->type, Token->type)){
+
+                set (tree, {
+
+                    (Token - 3)->val.STR = strdup (Token->val.STR);
+                    printf ("%p : %p", (Token - 3)->val.STR, Token->val.STR);
+                    assert ((Token - 3)->val.STR != NULL);
+                })
+            }
+            else assert ("Error of kind: <type> <var_name> = <wrong_type>; or <type> <var_name> = ;\n\n" == NULL);
+
+            Token++;
+        }
+    }
 })
 
 DEFCMD (INT, "int", 0)

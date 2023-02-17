@@ -94,10 +94,10 @@ union NodVal {
 
 //Defines to determine how to interpret NodVal depending on NodType
 
-#define IS_DUMP_INT(type) (type == INT_CONST)
-#define IS_DUMP_DOUBLE(type) (type == DOUBLE_CONST)
-#define IS_DUMP_CHAR(type) (type == CHAR_CONST)
-#define IS_DUMP_STR(type) (type == BLANK or type == STR_CONST)
+#define IS_DUMP_INT(type) (type == INT_CONST or type == INT)
+#define IS_DUMP_DOUBLE(type) (type == DOUBLE_CONST or type == DOUBLE)
+#define IS_DUMP_CHAR(type) (type == CHAR_CONST or type == CHAR)
+#define IS_DUMP_STR(type) (type == BLANK or type == STR_CONST or type == VAR or type == FUNC)
 
 #define MAX_WORD_LEN 100
 
@@ -280,6 +280,7 @@ struct Nod {
         type = src->type;
         prev = src->prev;
         num = src->num;
+
 
         if (!IS_DUMP_STR (type)) val = src->val;
         else val = src->val.STR;
@@ -585,7 +586,7 @@ class Tree {
         if (IS_DUMP_INT (nod->type)) picprintf ("%d", nod->val);
         else if (IS_DUMP_CHAR (nod->type)) picprintf ("%c", nod->val);
         else if (IS_DUMP_DOUBLE (nod->type)) picprintf ("%lf", nod->val);
-        else if (IS_DUMP_STR (nod->type)) picprintf ("%s", nod->val);
+        else if (IS_DUMP_STR (nod->type)) picprintf ("%p", nod->val);
         picprintf ("&gt;");
 
         #undef picprintf

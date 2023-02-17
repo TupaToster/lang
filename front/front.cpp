@@ -262,6 +262,11 @@ Nod* bufferize (const char* fileName, size_t* size, size_t* cap) {
 #define Token (*token)
 
 #define inSize Token - tree->getData () < tree->getSize ()
+#define INT_MATCH(var, constant) ((var) == INT and (constant) == INT_CONST)
+#define DOUBLE_MATCH(var, constant) ((var) == DOUBLE and (constant) == DOUBLE_CONST)
+#define CHAR_MATCH(var, constant) ((var) == DOUBLE and (constant) == DOUBLE_CONST)
+#define STR_MATCH(var, constant) ((var) == STR and (constant) == STR_CONST)
+
 
 Tree Get_G (Nod* buffer, size_t size) {
 

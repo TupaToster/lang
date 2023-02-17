@@ -3,6 +3,7 @@
         "initializer_list": "cpp",
         "type_traits": "cpp",
         "xtr1common": "cpp",
-        "codegensrc": "cpp"
+        "codegensrc": "cpp",
+        "compare": "cpp"
     }
 }

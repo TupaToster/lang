@@ -1,4 +1,4 @@
-int bebrus () {
+int plus (int a, int b) {
 
-    14 + 2 == 3;
+    1 + 2;
 }

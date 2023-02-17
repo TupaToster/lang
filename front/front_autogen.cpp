@@ -296,9 +296,9 @@ void Get_17 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
             assert (inSize - 1);
             assert ((Token + 1)->type == BLANK);
 
-            if (Token - tree->getData () == tree->getSize () - 2 or (Token + 2)->type != LB) {
+            if (inSize - 2 and !(inSize - 3) or (Token + 2)->type != LB) {
 
-                // Get_18(tree, iter, token, varTable, funcTable);
+                Get_18(tree, iter, token, varTable, funcTable);
                 return;
             }
 
@@ -322,8 +322,9 @@ void Get_17 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
             assert (inSize);
             while (Token->type != RB) {
 
-                // Get_18(tree, iter, token, varTable, funcTable);
+                Get_18(tree, funcPtr, token, varTable, funcTable);
                 assert (inSize);
+                if (Token->type == RB) break;
                 assert (Token->type == COMA);
                 Token++;
             }
@@ -339,5 +340,58 @@ void Get_17 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
             assert (Token->type == RFB);
             Token++;
         }
-        // else Get_18(tree, iter, token, varTable, funcTable);
+        else Get_18(tree, iter, token, varTable, funcTable);
+}
+void Get_18 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+    assert (tree != NULL);
+    assert (iter != NULL);
+    assert (token != NULL);
+    assert (inSize);
+
+
+
+    if (IS_TYPE (Token->type)){
+
+        Token++;
+        assert (inSize);
+        assert (Token->type == BLANK);
+
+        set (tree, {
+
+            Token->type = VAR;
+            Token->push_back (Token - 1);
+            (Token -1)->prev = Token;
+            Token->prev = iter;
+            iter->push_back (Token);
+        })
+
+        Token++;
+
+        if (inSize and Token->type == EQ) {
+
+            Token++;
+            assert (inSize);
+            if (INT_MATCH ((Token - 3)->type, Token->type) or
+                DOUBLE_MATCH ((Token - 3)->type, Token->type) or
+                CHAR_MATCH ((Token - 3)->type, Token->type)) {
+
+                    set (tree, {
+
+                        (Token - 3)->val = Token->val;
+                    })
+                }
+            else if (STR_MATCH ((Token - 3)->type, Token->type)){
+
+                set (tree, {
+
+                    (Token - 3)->val.STR = strdup (Token->val.STR);
+                    printf ("%p : %p", (Token - 3)->val.STR, Token->val.STR);
+                    assert ((Token - 3)->val.STR != NULL);
+                })
+            }
+            else assert ("Error of kind: <type> <var_name> = <wrong_type>; or <type> <var_name> = ;\n\n" == NULL);
+
+            Token++;
+        }
+    }
 }
