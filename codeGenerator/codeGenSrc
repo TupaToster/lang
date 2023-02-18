@@ -80,15 +80,19 @@ DEFCMD (FUNC, "_FUNC", 2, {
 
             Token++;
 
+            int paramCounter = 0;
             assert (inSize);
             while (Token->type != RB) {
 
                 call_next (tree, funcPtr, token, varTable, funcTable);
                 assert (inSize);
+                paramCounter++;
                 if (Token->type == RB) break;
                 assert (Token->type == COMA);
                 Token++;
             }
+
+            funcPtr->next[0]->val = paramCounter;
 
             Token++;
             assert (inSize);
@@ -116,7 +120,7 @@ DEFCMD (VAR, "_VAR", 2, {
 
             Token->type = VAR;
             Token->push_back (Token - 1);
-            (Token -1)->prev = Token;
+            (Token - 1)->prev = Token;
             Token->prev = iter;
             iter->push_back (Token);
         })
@@ -149,6 +153,7 @@ DEFCMD (VAR, "_VAR", 2, {
             Token++;
         }
     }
+    else call_next (tree, iter, token, varTable, funcTable);
 })
 
 DEFCMD (INT, "int", 0)

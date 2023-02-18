@@ -178,11 +178,28 @@ int main (int argc, char* argv[]) {
             sscanf (src + iter, " )%n", &delta);
             if (delta == 0) return __LINE__;
             iter += delta;
+
+            fprintf (front_cpp, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {\n"
+                    "    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc\n"
+                    "    Get_%d (tree, iter, token, varTable, varTable);\n"
+                    "}\n", enumCnt, enumCnt + 1);
+
+            fprintf (front_h, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
+
         }
         else return __LINE__;
 
         enumCnt++;
     }
+
+    fprintf (front_cpp, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {\n"
+            "    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc\n"
+            "    printf (\"Wrong token on ptr: %%p, stopping Get\", Token);\n"
+            "    assert (\"Wrong token here!\" == NULL);\n"
+            "}\n", enumCnt);
+
+    fprintf (front_h, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
+
 
     fprintf (enumFile, "NOD_TYPE_CNT = %d\n};", enumCnt);
 

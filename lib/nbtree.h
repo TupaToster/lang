@@ -911,6 +911,29 @@ struct NameTable {
         cnt.push (temp);
     }
 
+    void newLayer () {
+
+        cnt.push (0);
+    }
+
+    Nod* popElem () {
+
+        int temp = cnt.pop ();
+        temp--;
+        cnt.push (temp);
+        hashTable.pop ();
+        return table.pop ();
+    }
+
+    void eraseLayer () {
+
+        for (int i = cnt.pop (); i >= 0; i--) {
+
+            hashTable.pop ();
+            table.pop ();
+        }
+    }
+
     Nod* findByName (char* varName) {
 
         unsigned int hash = countHash (varName, varName + strlen (varName));

@@ -35,3 +35,25 @@ void Get_17 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 
 void Get_18 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
 
+void Get_19 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_20 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_21 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_22 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_23 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_24 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_25 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_26 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_27 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_28 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
+void Get_29 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+
