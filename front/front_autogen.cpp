@@ -214,12 +214,10 @@ void Get_12 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 
     if (Token->type == LB) {
 
-        set (tree, {
-            Token++;
-            Get_1 (tree, iter, token, varTable, funcTable);
-            assert (Token->type == RB);
-            Token++;
-        })
+        Token++;
+        Get_1 (tree, iter, token, varTable, funcTable);
+        assert (Token->type == RB);
+        Token++;
     }
     else Get_13(tree, iter, token, varTable, funcTable);
 }
@@ -364,10 +362,12 @@ void Get_18 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 
             Token->type = VAR;
             Token->push_back (Token - 1);
-            (Token -1)->prev = Token;
+            (Token - 1)->prev = Token;
             Token->prev = iter;
             iter->push_back (Token);
         })
+
+        varTable->addElem (Token);
 
         Token++;
 
@@ -396,6 +396,22 @@ void Get_18 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 
             Token++;
         }
+    }
+    else if (Token->type == BLANK) {
+
+        Nod* definition = varTable->findByName (Token->val.STR);
+
+        if (definition == NULL) Get_19(tree, iter, token, varTable, funcTable);
+
+        set (tree, {
+
+            iter->push_back (Token);
+            Token->prev = iter;
+            Token->type = VAR;
+            Token->push_back (definition);
+        })
+
+        Token++;
     }
     else Get_19(tree, iter, token, varTable, funcTable);
 }
@@ -441,5 +457,6 @@ void Get_28 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 }
 void Get_29 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
     // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
-    printf ("Wrong token on ptr: %p, stopping Get", Token);
-    assert ("Wrong token here!" == NULL);}
+    printf ("Wrong token on ptr: %p, stopping Get\n\n", Token);
+    assert ("Wrong token here!" == NULL);
+}

@@ -7,14 +7,20 @@ void dumpNodArray (Nod* array, size_t cap) {
     flog (array);
     for (int i = 0; i < cap; i++) {
 
-        flogprintf ("\t%p : Type = %d, val = %.16X ", array + i, array[i].type, array[i].val);
+        flogprintf ("\t%p : Type = %d, val = ", array + i, array[i].type);
+        if (IS_INT (array[i].type)) flogprintf ("%d;", array[i].val)
+        else if (IS_CHAR (array[i].type)) flogprintf ("%c;", array[i].val)
+        else if (IS_DOUBLE (array[i].type)) flogprintf ("%lg;", array[i].val)
+        else if (IS_STR (array[i].type)) flogprintf ("%s;", array[i].val)
+        else flogprintf ("0x%.16X;", array[i].val)
+
         for (int j = 0; j < array[i].size; j++) {
 
             flogprintf ("next[%d] : %p; ", j, array[i].next[j]);
         }
         flogprintf ("<br>");
     }
-    flogprintf ("stop\n\n");
+    flogprintf ("<hr>");
 }
 
 Nod* sizeUp (Nod* buffer, size_t* size, size_t* cap){
@@ -279,8 +285,9 @@ Tree Get_G (Nod* buffer, size_t size) {
 
     Nod* token = tree.getData () + 1;
 
-    while (token - tree.getData () < tree.getSize ()) Get_1 (&tree, tree.getData (), &token, &varTable, &funcTable);
+    dumpNodArray (tree.getData (), tree.getCap ());
 
+    while (token - tree.getData () < tree.getSize ()) Get_1 (&tree, tree.getData (), &token, &varTable, &funcTable);
 
     return tree;
 }

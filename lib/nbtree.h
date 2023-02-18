@@ -537,20 +537,22 @@ class Tree {
         for (int i = 0; i < nod->size; i++) {
 
             picprintf (" | { [%d] | <next_%d> &lt;%p&gt; }", i, i, nod->next[i]);
-            //if (i != nod->size - 1) picprintf (" | ");
         }
 
-        picprintf ("}}\"]" "\n")
+        picprintf (" | Cap = %d }}\"]" "\n", nod->cap);
 
         *num += 1;
 
-        for (int i = 0; i < nod->size; i++) PrintNod (nod->next[i], num, depth + 1, picSource, ranks);
+        if (!(nod->type == VAR and nod->size == 1 and nod->next[0] != NULL and nod->next[0]->type == VAR))
+            for (int i = 0; i < nod->size; i++) PrintNod (nod->next[i], num, depth + 1, picSource, ranks);
 
         #undef picprintf
 
     }
 
     void PrintConnections (Nod* nod, FILE* picSource) {
+
+        if (nod->type == VAR and nod->size == 1 and nod->next[0] != NULL and nod->next[0]->type == VAR) return;
 
         #define picprintf(...) fprintf (picSource, __VA_ARGS__);
 
@@ -702,6 +704,8 @@ class Tree {
             data[i].prev = data + i + 1;
             if (i == cap - 1) data[i].prev = NULL;
         }
+
+        countHash ();
     }
 
     void DTOR () {
@@ -874,7 +878,8 @@ class Tree {
 
     bool verifyHash () {
 
-        if (countHash () != hash) {
+        unsigned int oldHash = hash;
+        if (countHash () != oldHash) {
 
             errCode |= WRONG_HASH;
             return false;
@@ -955,5 +960,17 @@ struct NameTable {
         table.DTOR ();
         hashTable.DTOR ();
         cnt.DTOR ();
+    }
+
+    void dumpInside (const char* name = NULL, const char* fileName = NULL, const char* funcName = NULL, size_t line = 0, void (*dumpFunc) (Nod* obj) = NULL) {
+
+        flogprintf ("<pre>" "In file %s, function %s, line %llu, NameTable named \"%s\" was dumped :<br>",
+                    fileName, funcName, line, name);
+
+        dump (table);
+        dump (hashTable);
+        dump (cnt);
+
+        flogprintf("<hr>");
     }
 };

@@ -32,12 +32,10 @@ DEFCMD (RB, ")", 2, {
 
     if (Token->type == LB) {
 
-        set (tree, {
-            Token++;
-            Get_1 (tree, iter, token, varTable, funcTable);
-            assert (Token->type == RB);
-            Token++;
-        })
+        Token++;
+        Get_1 (tree, iter, token, varTable, funcTable);
+        assert (Token->type == RB);
+        Token++;
     }
     else call_next (tree, iter, token, varTable, funcTable);
 })
@@ -125,6 +123,8 @@ DEFCMD (VAR, "_VAR", 2, {
             iter->push_back (Token);
         })
 
+        varTable->addElem (Token);
+
         Token++;
 
         if (inSize and Token->type == EQ) {
@@ -152,6 +152,22 @@ DEFCMD (VAR, "_VAR", 2, {
 
             Token++;
         }
+    }
+    else if (Token->type == BLANK) {
+
+        Nod* definition = varTable->findByName (Token->val.STR);
+
+        if (definition == NULL) call_next (tree, iter, token, varTable, funcTable);
+
+        set (tree, {
+
+            iter->push_back (Token);
+            Token->prev = iter;
+            Token->type = VAR;
+            Token->push_back (definition);
+        })
+
+        Token++;
     }
     else call_next (tree, iter, token, varTable, funcTable);
 })
