@@ -384,8 +384,7 @@ void Get_18 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 
                 set (tree, {
 
-                    (Token - 3)->val.STR = strdup (Token->val.STR);
-                    printf ("%p : %p", (Token - 3)->val.STR, Token->val.STR);
+                    (Token - 3)->val.STR = Token->val.STR;
                     assert ((Token - 3)->val.STR != NULL);
                 })
             }

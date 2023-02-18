@@ -7,7 +7,7 @@ void dumpNodArray (Nod* array, size_t cap) {
     flog (array);
     for (int i = 0; i < cap; i++) {
 
-        flogprintf ("\t%p : Type = %d, val = %.8X ", array + i, array[i].type, array[i].val);
+        flogprintf ("\t%p : Type = %d, val = %.16X ", array + i, array[i].type, array[i].val);
         for (int j = 0; j < array[i].size; j++) {
 
             flogprintf ("next[%d] : %p; ", j, array[i].next[j]);
@@ -166,7 +166,7 @@ int readNonService (Nod* *buffer, size_t* size, size_t* cap, char* code, char* w
         }
         else if (Syntax[i] > 0 and Syntax[i] == hashWord) {
 
-            (*buffer)[*size] = Nod ((NodType) i, 0);
+            (*buffer)[*size] = Nod ((NodType) i, 0.0);
             ++*size;
             break;
         }
@@ -278,6 +278,7 @@ Tree Get_G (Nod* buffer, size_t size) {
     NameTable funcTable;
 
     dumpNodArray (tree.getData (), tree.getSize ());
+
 
     Nod* token = tree.getData () + 1;
 

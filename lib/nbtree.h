@@ -94,10 +94,10 @@ union NodVal {
 
 //Defines to determine how to interpret NodVal depending on NodType
 
-#define IS_DUMP_INT(type) (type == INT_CONST or type == INT)
-#define IS_DUMP_DOUBLE(type) (type == DOUBLE_CONST or type == DOUBLE)
-#define IS_DUMP_CHAR(type) (type == CHAR_CONST or type == CHAR)
-#define IS_DUMP_STR(type) (type == BLANK or type == STR_CONST or type == VAR or type == FUNC)
+#define IS_INT(type) (type == INT_CONST or type == INT)
+#define IS_DOUBLE(type) (type == DOUBLE_CONST or type == DOUBLE)
+#define IS_CHAR(type) (type == CHAR_CONST or type == CHAR)
+#define IS_STR(type) (type == BLANK or type == STR_CONST or type == VAR or type == FUNC or type == STR)
 
 #define MAX_WORD_LEN 100
 
@@ -243,7 +243,7 @@ struct Nod {
         prev = src->prev;
         num = src->num;
 
-        if (! IS_DUMP_STR (type)) val = src->val;
+        if (! IS_STR (type)) val = src->val;
         else val = src->val.STR;
 
         cap = src->cap;
@@ -281,8 +281,7 @@ struct Nod {
         prev = src->prev;
         num = src->num;
 
-
-        if (!IS_DUMP_STR (type)) val = src->val;
+        if (!IS_STR (type)) val = src->val;
         else val = src->val.STR;
 
         cap = src->cap;
@@ -583,10 +582,10 @@ class Tree {
         else if (strcmp (SyntaxStrings[nod->type], ">=") == 0) picprintf ("Type = &lt;&gt;=&gt; | Value = &lt;");
         else picprintf ("Type = &lt;%s&gt; | Value = &lt;", SyntaxStrings[nod->type]);
 
-        if (IS_DUMP_INT (nod->type)) picprintf ("%d", nod->val);
-        else if (IS_DUMP_CHAR (nod->type)) picprintf ("%c", nod->val);
-        else if (IS_DUMP_DOUBLE (nod->type)) picprintf ("%lf", nod->val);
-        else if (IS_DUMP_STR (nod->type)) picprintf ("%p", nod->val);
+        if (IS_INT (nod->type)) picprintf ("%d", nod->val);
+        else if (IS_CHAR (nod->type)) picprintf ("%c", nod->val);
+        else if (IS_DOUBLE (nod->type)) picprintf ("%lf", nod->val);
+        else if (IS_STR (nod->type)) picprintf ("%s", nod->val);
         picprintf ("&gt;");
 
         #undef picprintf
@@ -693,9 +692,7 @@ class Tree {
         dataCanR = (unsigned int*) (data + cap);
         *dataCanR = CANR;
 
-
         for (int i = 0; i < size; i++) data[i].assign (_data + i);
-
 
         vacant = data + size;
 

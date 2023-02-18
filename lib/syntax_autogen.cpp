@@ -27,6 +27,8 @@ const char* SyntaxStrings[] = {
 "(",
 "{",
 "}",
+"[",
+"]",
 ",",
 "_NOD_TYPE_CNT"
 };
@@ -59,6 +61,8 @@ unsigned int Syntax[] = {
 40u,
 123u,
 125u,
+91u,
+93u,
 44u,
 0u
 };

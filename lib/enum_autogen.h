@@ -27,6 +27,8 @@ STR = 22,
 LB = 23,
 LFB = 24,
 RFB = 25,
-COMA = 26,
-NOD_TYPE_CNT = 27
+LSB = 26,
+RSB = 27,
+COMA = 28,
+NOD_TYPE_CNT = 29
 };

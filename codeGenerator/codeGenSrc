@@ -140,8 +140,7 @@ DEFCMD (VAR, "_VAR", 2, {
 
                 set (tree, {
 
-                    (Token - 3)->val.STR = strdup (Token->val.STR);
-                    printf ("%p : %p", (Token - 3)->val.STR, Token->val.STR);
+                    (Token - 3)->val.STR = Token->val.STR;
                     assert ((Token - 3)->val.STR != NULL);
                 })
             }
@@ -165,5 +164,9 @@ DEFCMD (LB, "(", 0)
 DEFCMD (LFB, "{", 0)
 
 DEFCMD (RFB, "}", 0)
+
+DEFCMD (LSB, "[", 0)
+
+DEFCMD (RSB, "]", 0)
 
 DEFCMD (COMA, ",", 0)
