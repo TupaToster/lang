@@ -2,18 +2,52 @@ digraph Tree_0 {
 	graph [dpi = 200];
 	bgcolor = "#252525"
 	rankdir = TB
-	"Nod_0" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;0000000000000000&gt; | Current = &lt;000001d114b72494&gt; | Type = &lt;_BLANK&gt; | Value = &lt;(null)&gt; | {next[2] :  | { [0] | <next_0> &lt;000001d114b72504&gt; } | { [1] | <next_1> &lt;000001d114b7261c&gt; } | Cap = 4 }}"]
-	"Nod_1" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001d114b72494&gt; | Current = &lt;000001d114b72504&gt; | Type = &lt;_VAR&gt; | Value = &lt;kok&gt; | {next[1] :  | { [0] | <next_0> &lt;000001d114b724cc&gt; } | Cap = 4 }}"]
-	"Nod_2" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001d114b72504&gt; | Current = &lt;000001d114b724cc&gt; | Type = &lt;int&gt; | Value = &lt;14&gt; | {next[0] :  | Cap = 4 }}"]
-	"Nod_3" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001d114b72494&gt; | Current = &lt;000001d114b7261c&gt; | Type = &lt;=&gt; | Value = &lt;&gt; | {next[2] :  | { [0] | <next_0> &lt;000001d114b725e4&gt; } | { [1] | <next_1> &lt;000001d114b72654&gt; } | Cap = 4 }}"]
-	"Nod_4" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001d114b7261c&gt; | Current = &lt;000001d114b725e4&gt; | Type = &lt;_VAR&gt; | Value = &lt;kok&gt; | {next[1] :  | { [0] | <next_0> &lt;000001d114b72504&gt; } | Cap = 4 }}"]
-	"Nod_5" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001d114b7261c&gt; | Current = &lt;000001d114b72654&gt; | Type = &lt;_INT_CONST&gt; | Value = &lt;3&gt; | {next[0] :  | Cap = 4 }}"]
+	"Nod_0" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;0000000000000000&gt; | Current = &lt;000001a74c2e7de4&gt; | Type = &lt;_BLANK&gt; | Value = &lt;(null)&gt; | {next[1] :  | { [0] | <next_0> &lt;000001a74c2e7e54&gt; } | Cap = 4 }}"]
+	"Nod_1" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e7de4&gt; | Current = &lt;000001a74c2e7e54&gt; | Type = &lt;_FUNC&gt; | Value = &lt;sum&gt; | {next[6] :  | { [0] | <next_0> &lt;000001a74c2e7e1c&gt; } | { [1] | <next_1> &lt;000001a74c2e7efc&gt; } | { [2] | <next_2> &lt;000001a74c2e8014&gt; } | { [3] | <next_3> &lt;000001a74c2e8164&gt; } | { [4] | <next_4> &lt;000001a74c2e84ac&gt; } | { [5] | <next_5> &lt;000001a74c2e85c4&gt; } | Cap = 8 }}"]
+	"Nod_2" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e7e54&gt; | Current = &lt;000001a74c2e7e1c&gt; | Type = &lt;int&gt; | Value = &lt;2&gt; | {next[0] :  | Cap = 4 }}"]
+	"Nod_3" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e7e54&gt; | Current = &lt;000001a74c2e7efc&gt; | Type = &lt;_VAR&gt; | Value = &lt;a&gt; | {next[1] :  | { [0] | <next_0> &lt;000001a74c2e7ec4&gt; } | Cap = 4 }}"]
+	"Nod_4" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e7efc&gt; | Current = &lt;000001a74c2e7ec4&gt; | Type = &lt;int&gt; | Value = &lt;1&gt; | {next[0] :  | Cap = 4 }}"]
+	"Nod_5" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e7e54&gt; | Current = &lt;000001a74c2e8014&gt; | Type = &lt;_VAR&gt; | Value = &lt;b&gt; | {next[1] :  | { [0] | <next_0> &lt;000001a74c2e7fdc&gt; } | Cap = 4 }}"]
+	"Nod_6" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e8014&gt; | Current = &lt;000001a74c2e7fdc&gt; | Type = &lt;int&gt; | Value = &lt;2&gt; | {next[0] :  | Cap = 4 }}"]
+	"Nod_7" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e7e54&gt; | Current = &lt;000001a74c2e8164&gt; | Type = &lt;_FUNC&gt; | Value = &lt;mult&gt; | {next[4] :  | { [0] | <next_0> &lt;000001a74c2e812c&gt; } | { [1] | <next_1> &lt;000001a74c2e820c&gt; } | { [2] | <next_2> &lt;000001a74c2e82b4&gt; } | { [3] | <next_3> &lt;000001a74c2e8394&gt; } | Cap = 4 }}"]
+	"Nod_8" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e8164&gt; | Current = &lt;000001a74c2e812c&gt; | Type = &lt;int&gt; | Value = &lt;2&gt; | {next[0] :  | Cap = 4 }}"]
+	"Nod_9" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e8164&gt; | Current = &lt;000001a74c2e820c&gt; | Type = &lt;_VAR&gt; | Value = &lt;a1&gt; | {next[1] :  | { [0] | <next_0> &lt;000001a74c2e81d4&gt; } | Cap = 4 }}"]
+	"Nod_10" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e820c&gt; | Current = &lt;000001a74c2e81d4&gt; | Type = &lt;int&gt; | Value = &lt;0&gt; | {next[0] :  | Cap = 4 }}"]
+	"Nod_11" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e8164&gt; | Current = &lt;000001a74c2e82b4&gt; | Type = &lt;_VAR&gt; | Value = &lt;a2&gt; | {next[1] :  | { [0] | <next_0> &lt;000001a74c2e827c&gt; } | Cap = 4 }}"]
+	"Nod_12" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e82b4&gt; | Current = &lt;000001a74c2e827c&gt; | Type = &lt;int&gt; | Value = &lt;0&gt; | {next[0] :  | Cap = 4 }}"]
+	"Nod_13" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e8164&gt; | Current = &lt;000001a74c2e8394&gt; | Type = &lt;+&gt; | Value = &lt;&gt; | {next[2] :  | { [0] | <next_0> &lt;000001a74c2e835c&gt; } | { [1] | <next_1> &lt;000001a74c2e83cc&gt; } | Cap = 4 }}"]
+	"Nod_14" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e8394&gt; | Current = &lt;000001a74c2e835c&gt; | Type = &lt;_INT_CONST&gt; | Value = &lt;1&gt; | {next[0] :  | Cap = 4 }}"]
+	"Nod_15" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e8394&gt; | Current = &lt;000001a74c2e83cc&gt; | Type = &lt;_INT_CONST&gt; | Value = &lt;2&gt; | {next[0] :  | Cap = 4 }}"]
+	"Nod_16" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e7e54&gt; | Current = &lt;000001a74c2e84ac&gt; | Type = &lt;_VAR&gt; | Value = &lt;c&gt; | {next[1] :  | { [0] | <next_0> &lt;000001a74c2e8474&gt; } | Cap = 4 }}"]
+	"Nod_17" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e84ac&gt; | Current = &lt;000001a74c2e8474&gt; | Type = &lt;int&gt; | Value = &lt;1&gt; | {next[0] :  | Cap = 4 }}"]
+	"Nod_18" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e7e54&gt; | Current = &lt;000001a74c2e85c4&gt; | Type = &lt;=&gt; | Value = &lt;&gt; | {next[2] :  | { [0] | <next_0> &lt;000001a74c2e858c&gt; } | { [1] | <next_1> &lt;000001a74c2e8634&gt; } | Cap = 4 }}"]
+	"Nod_19" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e85c4&gt; | Current = &lt;000001a74c2e858c&gt; | Type = &lt;_VAR&gt; | Value = &lt;c&gt; | {next[1] :  | { [0] | <next_0> &lt;000001a74c2e84ac&gt; } | Cap = 4 }}"]
+	"Nod_20" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e85c4&gt; | Current = &lt;000001a74c2e8634&gt; | Type = &lt;+&gt; | Value = &lt;&gt; | {next[1] :  | { [0] | <next_0> &lt;000001a74c2e85fc&gt; } | Cap = 4 }}"]
+	"Nod_21" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{<prev> Prev = &lt;000001a74c2e8634&gt; | Current = &lt;000001a74c2e85fc&gt; | Type = &lt;_VAR&gt; | Value = &lt;a&gt; | {next[1] :  | { [0] | <next_0> &lt;000001a74c2e7efc&gt; } | Cap = 4 }}"]
 	{rank = same;  Nod_0;}
-	{rank = same;  Nod_1; Nod_3;}
-	{rank = same;  Nod_2; Nod_4; Nod_5;}
+	{rank = same;  Nod_1;}
+	{rank = same;  Nod_2; Nod_3; Nod_5; Nod_7; Nod_16; Nod_18;}
+	{rank = same;  Nod_4; Nod_6; Nod_8; Nod_9; Nod_11; Nod_13; Nod_17; Nod_19; Nod_20;}
+	{rank = same;  Nod_10; Nod_12; Nod_14; Nod_15; Nod_21;}
 	"Nod_0":next_0 -> "Nod_1":prev [color = "#36f70f"];
 	"Nod_1":next_0 -> "Nod_2":prev [color = "#36f70f"];
-	"Nod_0":next_1 -> "Nod_3":prev [color = "#36f70f"];
+	"Nod_1":next_1 -> "Nod_3":prev [color = "#36f70f"];
 	"Nod_3":next_0 -> "Nod_4":prev [color = "#36f70f"];
-	"Nod_3":next_1 -> "Nod_5":prev [color = "#36f70f"];
+	"Nod_1":next_2 -> "Nod_5":prev [color = "#36f70f"];
+	"Nod_5":next_0 -> "Nod_6":prev [color = "#36f70f"];
+	"Nod_1":next_3 -> "Nod_7":prev [color = "#36f70f"];
+	"Nod_7":next_0 -> "Nod_8":prev [color = "#36f70f"];
+	"Nod_7":next_1 -> "Nod_9":prev [color = "#36f70f"];
+	"Nod_9":next_0 -> "Nod_10":prev [color = "#36f70f"];
+	"Nod_7":next_2 -> "Nod_11":prev [color = "#36f70f"];
+	"Nod_11":next_0 -> "Nod_12":prev [color = "#36f70f"];
+	"Nod_7":next_3 -> "Nod_13":prev [color = "#36f70f"];
+	"Nod_13":next_0 -> "Nod_14":prev [color = "#36f70f"];
+	"Nod_13":next_1 -> "Nod_15":prev [color = "#36f70f"];
+	"Nod_1":next_4 -> "Nod_16":prev [color = "#36f70f"];
+	"Nod_16":next_0 -> "Nod_17":prev [color = "#36f70f"];
+	"Nod_1":next_5 -> "Nod_18":prev [color = "#36f70f"];
+	"Nod_18":next_0 -> "Nod_19":prev [color = "#36f70f"];
+	"Nod_18":next_1 -> "Nod_20":prev [color = "#36f70f"];
+	"Nod_20":next_0 -> "Nod_21":prev [color = "#36f70f"];
 }

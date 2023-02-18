@@ -895,25 +895,18 @@ struct NameTable {
     Stack<unsigned int> hashTable;
     Stack<int> cnt;
 
-    void addElem (Nod* ptr, bool newLayer = false) {
+    NameTable () : table (), hashTable (), cnt () {
+
+        cnt.push (0);
+    }
+
+    void addElem (Nod* ptr) {
 
         assert (ptr != NULL);
 
-        if (cnt.getSize () == 0) {
-
-            cnt.push (0);
-        }
-
         table.push (ptr);
         hashTable.push (countHash (ptr->val.STR, ptr->val.STR + strlen (ptr->val.STR)));
-        if (newLayer) {
-
-            cnt.push (1);
-            return;
-        }
-        int temp = cnt.pop ();
-        temp++;
-        cnt.push (temp);
+        cnt.push (cnt.pop () + 1);
     }
 
     void newLayer () {

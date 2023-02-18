@@ -194,8 +194,6 @@ class Stack {
 
     }
 
-    //non standard part
-
     void resize () {
 
         if (cap > 4 and size < cap * 3 / 8) {
@@ -239,7 +237,7 @@ class Stack {
         countHash ();
     }
 
-    void dumpInside (const char* name, const char* fileName, const char* funcName, size_t line, void (*dumpFunc) (elem_t*) = NULL) {
+    void dumpInside (const char* name, const char* fileName, const char* funcName, size_t line) {
 
         flogprintf ("<pre>" "In file %s, function %s, line %llu, Stack named \"%s\" was dumped :<br>",
                     fileName, funcName, line, name);
@@ -287,8 +285,7 @@ class Stack {
             for (int i = 0; i < size; i++) {
 
                 flogprintf ( "\t\t" "data[%*d] : ", sizeLog10, i);
-                if (dumpFunc != NULL) dumpFunc (data + i);
-                else flogprintf (getFormat (elem_t), data[i])
+                flogprintf (getFormat (elem_t), data[i])
                 flogprintf ("<br>");
             }
         }
@@ -316,13 +313,12 @@ class Stack {
         }
     }
 
-    void push (elem_t val, void (*cpy) (elem_t* dst, elem_t* src) = NULL) {
+    void push (elem_t val) {
 
         errCheck ();
         resize ();
 
-        if (cpy != NULL) cpy (data + size, &val);
-        else data[size] = val;
+        data[size] = val;
         size++;
 
         countHash ();
@@ -332,8 +328,8 @@ class Stack {
 
         errCheck ();
 
-        elem_t retVal = data[size];
-        setPoison (data + size);
+        elem_t retVal = data[size - 1];
+        setPoison (data + size - 1);
         size--;
 
         resize ();

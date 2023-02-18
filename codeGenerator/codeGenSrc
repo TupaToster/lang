@@ -50,60 +50,77 @@ DEFCMD (STR_CONST, "_STR_CONST", 3)
 
 DEFCMD (FUNC, "_FUNC", 2, {
 
-        if (IS_TYPE (Token->type)) {
+    if (IS_TYPE (Token->type)) {
 
-            assert (inSize - 1);
-            assert ((Token + 1)->type == BLANK);
+        assert (inSize - 1);
+        assert ((Token + 1)->type == BLANK);
 
-            if (inSize - 2 and !(inSize - 3) or (Token + 2)->type != LB) {
+        if (inSize - 2 and !(inSize - 3) or (Token + 2)->type != LB) {
 
-                call_next (tree, iter, token, varTable, funcTable);
-                return;
-            }
+            call_next (tree, iter, token, varTable, funcTable);
+            return;
+        }
 
-            Nod* funcPtr = Token + 1;
+        Nod* funcPtr = Token + 1;
 
-            set (tree, {
 
-                (Token + 1)->type = FUNC;
-                (Token + 1)->push_back (Token);
-                Token->prev = Token + 1;
-                iter->push_back (Token + 1);
-                (Token + 1)->prev = iter;
-            })
+        set (tree, {
 
-            Token += 2;
+            (Token + 1)->type = FUNC;
+            (Token + 1)->push_back (Token);
+            Token->prev = Token + 1;
+            iter->push_back (Token + 1);
+            (Token + 1)->prev = iter;
+        })
 
-            assert (Token->type == LB);
 
-            Token++;
+        Token += 2;
 
-            int paramCounter = 0;
+        assert (Token->type == LB);
+
+        Token++;
+
+        int paramCounter = 0;
+        assert (inSize);
+
+        varTable->newLayer ();
+        while (Token->type != RB) {
+
+            call_next (tree, funcPtr, token, varTable, funcTable);
             assert (inSize);
-            while (Token->type != RB) {
-
-                call_next (tree, funcPtr, token, varTable, funcTable);
-                assert (inSize);
-                paramCounter++;
-                if (Token->type == RB) break;
-                assert (Token->type == COMA);
-                Token++;
-            }
-
-            funcPtr->next[0]->val = paramCounter;
-
-            Token++;
-            assert (inSize);
-            assert (Token->type == LFB);
-
-            Token++;
-            while (Token->type != RFB) Get_1 (tree, funcPtr, token, varTable, funcTable);
-
-            assert (inSize);
-            assert (Token->type == RFB);
+            paramCounter++;
+            if (Token->type == RB) break;
+            assert (Token->type == COMA);
             Token++;
         }
-        else call_next (tree, iter, token, varTable, funcTable);
+
+        set (tree, {
+
+            funcPtr->next[0]->val = paramCounter;
+        })
+
+        Token++;
+        assert (inSize);
+        assert (Token->type == LFB);
+
+        funcTable->addElem (funcPtr);
+        funcTable->newLayer ();
+
+        Token++;
+        while (Token->type != RFB) Get_1 (tree, funcPtr, token, varTable, funcTable);
+
+        dump (*varTable);
+        dump (*funcTable);
+
+        varTable->eraseLayer ();
+
+        funcTable->eraseLayer ();
+
+        assert (inSize);
+        assert (Token->type == RFB);
+        Token++;
+    }
+    else call_next (tree, iter, token, varTable, funcTable);
 })
 
 DEFCMD (VAR, "_VAR", 2, {
@@ -158,7 +175,6 @@ DEFCMD (VAR, "_VAR", 2, {
         Nod* definition = varTable->findByName (Token->val.STR);
 
         if (definition == NULL) call_next (tree, iter, token, varTable, funcTable);
-
         set (tree, {
 
             iter->push_back (Token);

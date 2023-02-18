@@ -289,60 +289,77 @@ void Get_17 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 
 
 
-        if (IS_TYPE (Token->type)) {
+    if (IS_TYPE (Token->type)) {
 
-            assert (inSize - 1);
-            assert ((Token + 1)->type == BLANK);
+        assert (inSize - 1);
+        assert ((Token + 1)->type == BLANK);
 
-            if (inSize - 2 and !(inSize - 3) or (Token + 2)->type != LB) {
+        if (inSize - 2 and !(inSize - 3) or (Token + 2)->type != LB) {
 
-                Get_18(tree, iter, token, varTable, funcTable);
-                return;
-            }
+            Get_18(tree, iter, token, varTable, funcTable);
+            return;
+        }
 
-            Nod* funcPtr = Token + 1;
+        Nod* funcPtr = Token + 1;
 
-            set (tree, {
 
-                (Token + 1)->type = FUNC;
-                (Token + 1)->push_back (Token);
-                Token->prev = Token + 1;
-                iter->push_back (Token + 1);
-                (Token + 1)->prev = iter;
-            })
+        set (tree, {
 
-            Token += 2;
+            (Token + 1)->type = FUNC;
+            (Token + 1)->push_back (Token);
+            Token->prev = Token + 1;
+            iter->push_back (Token + 1);
+            (Token + 1)->prev = iter;
+        })
 
-            assert (Token->type == LB);
 
-            Token++;
+        Token += 2;
 
-            int paramCounter = 0;
+        assert (Token->type == LB);
+
+        Token++;
+
+        int paramCounter = 0;
+        assert (inSize);
+
+        varTable->newLayer ();
+        while (Token->type != RB) {
+
+            Get_18(tree, funcPtr, token, varTable, funcTable);
             assert (inSize);
-            while (Token->type != RB) {
-
-                Get_18(tree, funcPtr, token, varTable, funcTable);
-                assert (inSize);
-                paramCounter++;
-                if (Token->type == RB) break;
-                assert (Token->type == COMA);
-                Token++;
-            }
-
-            funcPtr->next[0]->val = paramCounter;
-
-            Token++;
-            assert (inSize);
-            assert (Token->type == LFB);
-
-            Token++;
-            while (Token->type != RFB) Get_1 (tree, funcPtr, token, varTable, funcTable);
-
-            assert (inSize);
-            assert (Token->type == RFB);
+            paramCounter++;
+            if (Token->type == RB) break;
+            assert (Token->type == COMA);
             Token++;
         }
-        else Get_18(tree, iter, token, varTable, funcTable);
+
+        set (tree, {
+
+            funcPtr->next[0]->val = paramCounter;
+        })
+
+        Token++;
+        assert (inSize);
+        assert (Token->type == LFB);
+
+        funcTable->addElem (funcPtr);
+        funcTable->newLayer ();
+
+        Token++;
+        while (Token->type != RFB) Get_1 (tree, funcPtr, token, varTable, funcTable);
+
+        dump (*varTable);
+        dump (*funcTable);
+
+        varTable->eraseLayer ();
+
+        funcTable->eraseLayer ();
+
+        assert (inSize);
+        assert (Token->type == RFB);
+        Token++;
+    }
+    else Get_18(tree, iter, token, varTable, funcTable);
 }
 void Get_18 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
     assert (tree != NULL);
@@ -402,7 +419,6 @@ void Get_18 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
         Nod* definition = varTable->findByName (Token->val.STR);
 
         if (definition == NULL) Get_19(tree, iter, token, varTable, funcTable);
-
         set (tree, {
 
             iter->push_back (Token);
@@ -458,5 +474,8 @@ void Get_28 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 void Get_29 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
     // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
     printf ("Wrong token on ptr: %p, stopping Get\n\n", Token);
+    dump (*varTable);
+    dump (*funcTable);
+    dump (*tree);
     assert ("Wrong token here!" == NULL);
 }
