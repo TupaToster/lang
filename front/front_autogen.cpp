@@ -302,6 +302,15 @@ void Get_17 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 
         Nod* funcPtr = Token + 1;
 
+        if (varTable->findByName (funcPtr->val.STR) != NULL or funcTable->findByName (funcPtr->val.STR) != NULL) {
+
+            printf ("Attempted redefinition of a function on ptr %p. For detailed information visit \"logs_out\".\n", funcPtr);
+            dumpNodArray (tree->getData (), tree->getSize ());
+            dump (*tree);
+            dump (*varTable);
+            dump (*funcTable);
+            assert ("Stopping" == NULL);
+        }
 
         set (tree, {
 
@@ -348,9 +357,6 @@ void Get_17 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
         Token++;
         while (Token->type != RFB) Get_1 (tree, funcPtr, token, varTable, funcTable);
 
-        dump (*varTable);
-        dump (*funcTable);
-
         varTable->eraseLayer ();
 
         funcTable->eraseLayer ();
@@ -374,6 +380,16 @@ void Get_18 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
         Token++;
         assert (inSize);
         assert (Token->type == BLANK);
+
+        if (varTable->findByName (Token->val.STR) != NULL or funcTable->findByName (Token->val.STR) != NULL) {
+
+            printf ("Attempted redefinition of a variable on ptr %p. For detailed information visit \"logs_out\".\n", Token);
+            dumpNodArray (tree->getData (), tree->getSize ());
+            dump (*tree);
+            dump (*varTable);
+            dump (*funcTable);
+            assert ("Stopping" == NULL);
+        }
 
         set (tree, {
 

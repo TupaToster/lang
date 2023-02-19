@@ -513,7 +513,7 @@ class Tree {
         system (command);
 
         flogprintf ("<h2>Tree dump</h2><br>");
-        flogprintf ("<img src = \"%s\" style = \"width: 55%%;height: auto\"><br>", picName);
+        flogprintf ("<img src = \"%s\"><br>", picName);
 
         GraphDumpCounter++;
 
@@ -925,7 +925,7 @@ struct NameTable {
 
     void eraseLayer () {
 
-        for (int i = cnt.pop (); i >= 0; i--) {
+        for (int i = cnt.pop (); i > 0; i--) {
 
             hashTable.pop ();
             table.pop ();

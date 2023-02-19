@@ -285,8 +285,6 @@ Tree Get_G (Nod* buffer, size_t size) {
 
     Nod* token = tree.getData () + 1;
 
-    dumpNodArray (tree.getData (), tree.getCap ());
-
     while (token - tree.getData () < tree.getSize ()) Get_1 (&tree, tree.getData (), &token, &varTable, &funcTable);
 
     return tree;

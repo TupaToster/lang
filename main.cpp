@@ -7,8 +7,6 @@ int main () {
     Nod* buffer = bufferize ("example.cpp", &size, &cap);
     assert (buffer != NULL);
 
-    dumpNodArray (buffer, cap);
-
     Tree tree = Get_G (buffer, size);
 
     dump (tree);
