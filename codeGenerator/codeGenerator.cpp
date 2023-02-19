@@ -195,9 +195,10 @@ int main (int argc, char* argv[]) {
     fprintf (front_cpp, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {\n"
             "    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc\n"
             "    printf (\"Wrong token on ptr: %%p, stopping Get\\n\\n\", Token);\n"
+            "    dumpNodArray (tree->getData (), tree->getSize ());\n"
+            "    dump (*tree);\n"
             "    dump (*varTable);\n"
             "    dump (*funcTable);\n"
-            "    dump (*tree);\n"
             "    assert (\"Wrong token here!\" == NULL);\n"
             "}\n", enumCnt);
 

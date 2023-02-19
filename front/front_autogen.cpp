@@ -210,16 +210,18 @@ void Get_12 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
     assert (token != NULL);
     assert (inSize);
 
-
-
-    if (Token->type == LB) {
-
+    Get_13 (tree, iter, token, varTable, funcTable);
+    while (Token->type == 12) {
+        set (tree, {
+            Nod* target = iter->pop_back ();
+            iter->push_back (Token);
+            Token->prev = iter;
+            Token->push_back (target);
+            target->prev = Token;
+        })
         Token++;
-        Get_1 (tree, iter, token, varTable, funcTable);
-        assert (Token->type == RB);
-        Token++;
+        Get_13 (tree, Token - 1, token, varTable, funcTable);
     }
-    else Get_13(tree, iter, token, varTable, funcTable);
 }
 void Get_13 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
     assert (tree != NULL);
@@ -227,14 +229,18 @@ void Get_13 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
     assert (token != NULL);
     assert (inSize);
 
-    if (Token->type == 13) {
+    Get_14 (tree, iter, token, varTable, funcTable);
+    while (Token->type == 13) {
         set (tree, {
-            Token->prev = iter;
+            Nod* target = iter->pop_back ();
             iter->push_back (Token);
-            Token++;
+            Token->prev = iter;
+            Token->push_back (target);
+            target->prev = Token;
         })
+        Token++;
+        Get_14 (tree, Token - 1, token, varTable, funcTable);
     }
-    else Get_14 (tree, iter, token, varTable, funcTable);
 }
 void Get_14 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
     assert (tree != NULL);
@@ -287,8 +293,129 @@ void Get_17 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
     assert (token != NULL);
     assert (inSize);
 
+    if (Token->type == 17) {
+        set (tree, {
+            Token->prev = iter;
+            iter->push_back (Token);
+            Token++;
+        })
+    }
+    else Get_18 (tree, iter, token, varTable, funcTable);
+}
+void Get_18 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+    assert (tree != NULL);
+    assert (iter != NULL);
+    assert (token != NULL);
+    assert (inSize);
+
+    if (Token->type == 18) {
+        set (tree, {
+            Token->prev = iter;
+            iter->push_back (Token);
+            Token++;
+        })
+    }
+    else Get_19 (tree, iter, token, varTable, funcTable);
+}
+void Get_19 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
+    Get_20 (tree, iter, token, varTable, varTable);
+}
+void Get_20 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+    assert (tree != NULL);
+    assert (iter != NULL);
+    assert (token != NULL);
+    assert (inSize);
 
 
+
+    if (Token->type == LB) {
+
+        Token++;
+        while (Token->type != RB) Get_1 (tree, iter, token, varTable, funcTable);
+        assert (Token->type == RB);
+        Token++;
+    }
+    else Get_21(tree, iter, token, varTable, funcTable);
+}
+void Get_21 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+    assert (tree != NULL);
+    assert (iter != NULL);
+    assert (token != NULL);
+    assert (inSize);
+
+
+
+    if (Token->type == IF) {
+
+        Nod* ifPtr = Token;
+
+        set (tree, {
+
+            Token->prev = iter;
+            iter->push_back (Token);
+            Token++;
+            assert (inSize);
+        })
+
+        assert (Token->type == LB);
+
+        Get_1 (tree, ifPtr, token, varTable, funcTable);
+
+        assert (Token->type == LFB);
+
+        Token++;
+        assert (inSize);
+
+        varTable->newLayer ();
+        funcTable->newLayer ();
+
+        while (inSize and Token->type != RFB) Get_1 (tree, ifPtr, token, varTable, funcTable);
+        assert (inSize);
+
+        varTable->eraseLayer ();
+        funcTable->eraseLayer ();
+
+        assert (Token->type == RFB);
+
+        Token++;
+        assert (inSize);
+
+        if (Token->type == ELSE) {
+
+            Token++;
+            assert (inSize);
+
+            assert (Token->type == LFB);
+
+            Token++;
+            assert (inSize);
+
+            varTable->newLayer ();
+            funcTable->newLayer ();
+
+            while (inSize and Token->type != RFB) Get_1 (tree, ifPtr, token, varTable, funcTable);
+            assert (inSize);
+
+            varTable->eraseLayer ();
+            funcTable->eraseLayer ();
+
+            assert (Token->type == RFB);
+            
+            Token++;
+        }
+    }
+    else Get_22(tree, iter, token, varTable, funcTable);
+}
+void Get_22 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+    assert (tree != NULL);
+    assert (iter != NULL);
+    assert (token != NULL);
+    assert (inSize);
+
+
+
+    // !!!!!! FUNC reader must always be infront of VAR reader
     if (IS_TYPE (Token->type)) {
 
         assert (inSize - 1);
@@ -296,7 +423,7 @@ void Get_17 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 
         if (inSize - 2 and !(inSize - 3) or (Token + 2)->type != LB) {
 
-            Get_18(tree, iter, token, varTable, funcTable);
+            Get_23(tree, iter, token, varTable, funcTable);
             return;
         }
 
@@ -334,7 +461,7 @@ void Get_17 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
         varTable->newLayer ();
         while (Token->type != RB) {
 
-            Get_18(tree, funcPtr, token, varTable, funcTable);
+            Get_23(tree, funcPtr, token, varTable, funcTable);
             assert (inSize);
             paramCounter++;
             if (Token->type == RB) break;
@@ -365,9 +492,9 @@ void Get_17 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
         assert (Token->type == RFB);
         Token++;
     }
-    else Get_18(tree, iter, token, varTable, funcTable);
+    else Get_23(tree, iter, token, varTable, funcTable);
 }
-void Get_18 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+void Get_23 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
     assert (tree != NULL);
     assert (iter != NULL);
     assert (token != NULL);
@@ -434,7 +561,7 @@ void Get_18 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 
         Nod* definition = varTable->findByName (Token->val.STR);
 
-        if (definition == NULL) Get_19(tree, iter, token, varTable, funcTable);
+        if (definition == NULL) Get_24(tree, iter, token, varTable, funcTable);
         set (tree, {
 
             iter->push_back (Token);
@@ -445,27 +572,7 @@ void Get_18 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 
         Token++;
     }
-    else Get_19(tree, iter, token, varTable, funcTable);
-}
-void Get_19 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
-    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
-    Get_20 (tree, iter, token, varTable, varTable);
-}
-void Get_20 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
-    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
-    Get_21 (tree, iter, token, varTable, varTable);
-}
-void Get_21 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
-    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
-    Get_22 (tree, iter, token, varTable, varTable);
-}
-void Get_22 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
-    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
-    Get_23 (tree, iter, token, varTable, varTable);
-}
-void Get_23 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
-    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
-    Get_24 (tree, iter, token, varTable, varTable);
+    else Get_24(tree, iter, token, varTable, funcTable);
 }
 void Get_24 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
     // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
@@ -489,9 +596,30 @@ void Get_28 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 }
 void Get_29 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
     // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
+    Get_30 (tree, iter, token, varTable, varTable);
+}
+void Get_30 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
+    Get_31 (tree, iter, token, varTable, varTable);
+}
+void Get_31 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
+    Get_32 (tree, iter, token, varTable, varTable);
+}
+void Get_32 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
+    Get_33 (tree, iter, token, varTable, varTable);
+}
+void Get_33 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
+    Get_34 (tree, iter, token, varTable, varTable);
+}
+void Get_34 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {
+    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
     printf ("Wrong token on ptr: %p, stopping Get\n\n", Token);
+    dumpNodArray (tree->getData (), tree->getSize ());
+    dump (*tree);
     dump (*varTable);
     dump (*funcTable);
-    dump (*tree);
     assert ("Wrong token here!" == NULL);
 }

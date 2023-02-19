@@ -64,7 +64,8 @@
 //     DOUBLE_T = 38,
 //     CHAR_T = 39,
 //     STR_T = 40,
-//     NOD_TYPE_CNT = 41
+//     BREAK = 41
+//     NOD_TYPE_CNT = 42
 // };
 
 union NodVal {

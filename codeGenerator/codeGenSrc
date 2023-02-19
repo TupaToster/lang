@@ -28,17 +28,9 @@ DEFCMD (MULT, "*", 1)
 
 DEFCMD (DIV, "/", 1)
 
-DEFCMD (RB, ")", 2, {
+DEFCMD (AND, "&&", 1)
 
-    if (Token->type == LB) {
-
-        Token++;
-        Get_1 (tree, iter, token, varTable, funcTable);
-        assert (Token->type == RB);
-        Token++;
-    }
-    else call_next (tree, iter, token, varTable, funcTable);
-})
+DEFCMD (OR, "||", 1)
 
 DEFCMD (INT_CONST, "_INT_CONST", 3)
 
@@ -48,8 +40,89 @@ DEFCMD (CHAR_CONST, "_CHAR_CONST", 3)
 
 DEFCMD (STR_CONST, "_STR_CONST", 3)
 
+DEFCMD (RETURN, "return", 3)
+
+DEFCMD (LB, "(", 0)
+
+DEFCMD (RB, ")", 2, {
+
+    if (Token->type == LB) {
+
+        Token++;
+        while (Token->type != RB) Get_1 (tree, iter, token, varTable, funcTable);
+        assert (Token->type == RB);
+        Token++;
+    }
+    else call_next (tree, iter, token, varTable, funcTable);
+})
+
+DEFCMD (IF, "if", 2, {
+
+    if (Token->type == IF) {
+
+        Nod* ifPtr = Token;
+
+        set (tree, {
+
+            Token->prev = iter;
+            iter->push_back (Token);
+            Token++;
+            assert (inSize);
+        })
+
+        assert (Token->type == LB);
+
+        Get_1 (tree, ifPtr, token, varTable, funcTable);
+
+        assert (Token->type == LFB);
+
+        Token++;
+        assert (inSize);
+
+        varTable->newLayer ();
+        funcTable->newLayer ();
+
+        while (inSize and Token->type != RFB) Get_1 (tree, ifPtr, token, varTable, funcTable);
+        assert (inSize);
+
+        varTable->eraseLayer ();
+        funcTable->eraseLayer ();
+
+        assert (Token->type == RFB);
+
+        Token++;
+        assert (inSize);
+
+        if (Token->type == ELSE) {
+
+            Token++;
+            assert (inSize);
+
+            assert (Token->type == LFB);
+
+            Token++;
+            assert (inSize);
+
+            varTable->newLayer ();
+            funcTable->newLayer ();
+
+            while (inSize and Token->type != RFB) Get_1 (tree, ifPtr, token, varTable, funcTable);
+            assert (inSize);
+
+            varTable->eraseLayer ();
+            funcTable->eraseLayer ();
+
+            assert (Token->type == RFB);
+            
+            Token++;
+        }
+    }
+    else call_next (tree, iter, token, varTable, funcTable);
+})
+
 DEFCMD (FUNC, "_FUNC", 2, {
 
+    // !!!!!! FUNC reader must always be infront of VAR reader
     if (IS_TYPE (Token->type)) {
 
         assert (inSize - 1);
@@ -204,6 +277,8 @@ DEFCMD (VAR, "_VAR", 2, {
     else call_next (tree, iter, token, varTable, funcTable);
 })
 
+DEFCMD (ELSE, "else", 0)
+
 DEFCMD (INT, "int", 0)
 
 DEFCMD (DOUBLE, "double", 0)
@@ -211,8 +286,6 @@ DEFCMD (DOUBLE, "double", 0)
 DEFCMD (CHAR, "char", 0)
 
 DEFCMD (STR, "string", 0)
-
-DEFCMD (LB, "(", 0)
 
 DEFCMD (LFB, "{", 0)
 

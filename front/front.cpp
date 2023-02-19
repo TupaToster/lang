@@ -273,6 +273,10 @@ Nod* bufferize (const char* fileName, size_t* size, size_t* cap) {
 #define CHAR_MATCH(var, constant) ((var) == DOUBLE and (constant) == DOUBLE_CONST)
 #define STR_MATCH(var, constant) ((var) == STR and (constant) == STR_CONST)
 
+#ifdef NDEBUG
+#define NDEBUG_TEMP 1
+#undef NDEBUG
+#endif
 
 Tree Get_G (Nod* buffer, size_t size) {
 
@@ -291,3 +295,8 @@ Tree Get_G (Nod* buffer, size_t size) {
 }
 
 #include "front_autogen.cpp"
+
+#ifdef NDEBUG_TEMP
+#undef NDEBUG_TEMP
+#define NDEBUG 1
+#endif
