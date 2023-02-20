@@ -9,7 +9,7 @@
 
 #include "../lib/syntax_autogen.h"
 
-#define SERVICE_SYMBOLS "]+[&/;,();}<>=--"
+#define SERVICE_SYMBOLS "]+[/;,();}<>=--"
 
 #define IS_TYPE(val) (val == INT or val == DOUBLE or val == CHAR or val == STR)
 
