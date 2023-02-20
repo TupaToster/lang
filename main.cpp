@@ -9,7 +9,5 @@ int main () {
 
     Tree tree = Get_G (buffer, size);
 
-    dumpNodArray (tree.getData (), tree.getSize ());
-
     dump (tree);
 }

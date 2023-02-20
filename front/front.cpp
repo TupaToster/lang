@@ -284,6 +284,8 @@ Tree Get_G (Nod* buffer, size_t size) {
 
     Tree tree (buffer, size);
 
+    dumpNodArray (tree.getData (), tree.getSize ());
+
     NameTable varTable;
     NameTable funcTable;
 

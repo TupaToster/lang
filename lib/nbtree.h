@@ -530,7 +530,7 @@ class Tree {
         ranks[depth][0]++;
         ranks[depth][ranks[depth][0]] = *num;
 
-        picprintf ("\t" "\"Nod_%d\" [shape = \"Mrecord\", style = \"filled\", fillcolor = \"#1ed5f2\", label = \"{<prev> Prev = &lt;%p&gt; | Current = &lt;%p&gt; | ", nod->num, nod->prev, nod);
+        picprintf ("\t" "\"Nod_%d\" [shape = \"Mrecord\", style = \"filled\", fillcolor = \"#1ed5f2\", label = \"{ { | <prev> Prev = &lt;%p&gt; | } | Current = &lt;%p&gt; | ", nod->num, nod->prev, nod);
         nodDumpFunc (picSource, nod);
 
         picprintf (" | {next[%d] : ", nod->size);
@@ -544,8 +544,11 @@ class Tree {
 
         *num += 1;
 
-        if (!(nod->type == VAR and nod->size == 1 and nod->next[0] != NULL and nod->next[0]->type == VAR))
-            for (int i = 0; i < nod->size; i++) PrintNod (nod->next[i], num, depth + 1, picSource, ranks);
+        for (int i = 0; i < nod->size; i++) {
+            if (nod->type == VAR and nod->next[i]->type == VAR) continue;
+            if (nod->type == FUNC and nod->next[i]->type == FUNC) continue;
+            PrintNod (nod->next[i], num, depth + 1, picSource, ranks);
+        }
 
         #undef picprintf
 
@@ -553,12 +556,12 @@ class Tree {
 
     void PrintConnections (Nod* nod, FILE* picSource) {
 
-        if (nod->type == VAR and nod->size == 1 and nod->next[0] != NULL and nod->next[0]->type == VAR) return;
-
         #define picprintf(...) fprintf (picSource, __VA_ARGS__);
 
         for (int i = 0; i < nod->size; i++) {
-
+            
+            if (nod->type == VAR and nod->next[i]->type == VAR) continue;
+            if (nod->type == FUNC and nod->next[i]->type == FUNC) continue;
             picprintf ("\t" "\"Nod_%d\":next_%d -> \"Nod_%d\":prev [color = \"#36f70f\"];\n", nod->num, i, (nod->next[i])->num);
             PrintConnections (nod->next[i], picSource);
         }

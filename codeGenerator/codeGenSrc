@@ -40,6 +40,8 @@ DEFCMD (CHAR_CONST, "_CHAR_CONST", 3)
 
 DEFCMD (STR_CONST, "_STR_CONST", 3)
 
+DEFCMD (BREAK, "break", 3)
+
 DEFCMD (RETURN, "return", 2, {
 
     if (Token->type == RETURN) {
@@ -371,15 +373,59 @@ DEFCMD (FUNC, "_FUNC", 2, {
         funcTable->newLayer ();
 
         Token++;
-        while (Token->type != RFB) Get_1 (tree, funcPtr, token, varTable, funcTable);
+        while (Token->type != RFB)
+            Get_1 (tree, funcPtr, token, varTable, funcTable);
 
         varTable->eraseLayer ();
-
         funcTable->eraseLayer ();
 
         assert (inSize);
         assert (Token->type == RFB);
         Token++;
+    }
+    else if (Token->type == BLANK) {
+
+        if (funcTable->findByName (Token->val.STR) == NULL) {
+
+            call_next (tree, iter, token, varTable, funcTable);
+            return;
+        }
+
+        Nod* defPtr = funcTable->findByName (Token->val.STR);
+        Nod* funcPtr = Token;
+
+        set (tree, {
+
+            Token->type = FUNC;
+            Token->push_back (defPtr);
+            iter->push_back (Token);
+            Token->prev = iter;
+        })
+
+        Token++;
+        assert (inSize);
+
+        assert (Token->type == LB);
+
+        Token++;
+        assert (inSize);
+
+        while (Token->type != RB) {
+
+            Get_1 (tree, funcPtr, token, varTable, funcTable);
+            assert (inSize);
+            if (Token->type == RB) break;
+            assert (Token->type == COMA);
+            Token++;
+            assert (inSize);
+        }
+
+        assert (Token->type == RB);
+
+        Token++;
+        assert (inSize);
+
+        assert (defPtr->next[0]->val.I == funcPtr->size - 1);
     }
     else call_next (tree, iter, token, varTable, funcTable);
 })
@@ -459,6 +505,8 @@ DEFCMD (VAR, "_VAR", 2, {
     else call_next (tree, iter, token, varTable, funcTable);
 })
 
+DEFCMD (COMA, ",", 0)
+
 DEFCMD (ELSE, "else", 0)
 
 DEFCMD (INT, "int", 0)
@@ -476,5 +524,3 @@ DEFCMD (RFB, "}", 0)
 DEFCMD (LSB, "[", 0)
 
 DEFCMD (RSB, "]", 0)
-
-DEFCMD (COMA, ",", 0)

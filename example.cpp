@@ -1,12 +1,23 @@
-for (int i = 18; i < 19; i = i + 1){
+int comp (int a, int b) {
 
-    int c = 2;
-    c = c + 1;
-    return c;
+    if (a == b) {
+
+        return 1;
+    }
+    else {
+
+        return 0;
+    }
+}
+
+for (int i = 17; i < 19; i = i + 1) {
+
+    if (comp (i, 18) == 1) {
+
+        return 19;
+    }
 }
 else {
 
-    int c = 1;
-    c = c + 1;
-    return c;
+    return 18;
 }

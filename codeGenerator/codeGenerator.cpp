@@ -181,7 +181,7 @@ int main (int argc, char* argv[]) {
 
             fprintf (front_cpp, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable) {\n"
                     "    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc\n"
-                    "    Get_%d (tree, iter, token, varTable, varTable);\n"
+                    "    Get_%d (tree, iter, token, varTable, funcTable);\n"
                     "}\n", enumCnt, enumCnt + 1);
 
             fprintf (front_h, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
