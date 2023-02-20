@@ -1,4 +1,4 @@
-while (14 == 2 and 12 == 2 and 14 - 1 < 13 or 5 == 5) {
+for (int i = 18; i < 19; i = i + 1){
 
     int c = 2;
     c = c + 1;

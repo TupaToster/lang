@@ -69,3 +69,5 @@ void Get_34 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable*
 
 void Get_35 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
 
+void Get_36 (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);
+

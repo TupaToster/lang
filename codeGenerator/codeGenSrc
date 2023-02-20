@@ -107,9 +107,8 @@ DEFCMD (IF, "if", 2, {
         assert (Token->type == RFB);
 
         Token++;
-        assert (inSize);
 
-        if (Token->type == ELSE) {
+        if (inSize and Token->type == ELSE) {
 
             set (tree, {
 
@@ -178,9 +177,8 @@ DEFCMD (WHILE, "while", 2, {
         assert (Token->type == RFB);
 
         Token++;
-        assert (inSize);
 
-        if (Token->type == ELSE) {
+        if (inSize and Token->type == ELSE) {
 
             Nod* elsePtr = Token;
 
@@ -206,6 +204,97 @@ DEFCMD (WHILE, "while", 2, {
             funcTable->eraseLayer ();
 
             assert (Token->type == RFB);
+
+            Token++;
+        }
+    }
+    else call_next (tree, iter, token, varTable, funcTable);
+})
+
+DEFCMD (FOR, "for", 2, {
+
+    if (Token->type == FOR) {
+
+        Nod* forPtr = Token;
+
+        set (tree, {
+
+            Token->prev = iter;
+            iter->push_back (Token);
+        })
+
+        Token++;
+        assert (inSize);
+
+        assert (Token->type == LB);
+
+        varTable->newLayer ();
+        funcTable->newLayer ();
+
+        Token++;
+        assert (inSize);
+
+        Get_1 (tree, forPtr, token, varTable, funcTable);
+
+        assert (inSize);
+        assert (Token->type == SC);
+        Token++;
+        assert (inSize);
+
+        Get_1 (tree, forPtr, token, varTable, funcTable);
+
+        assert (inSize);
+        assert (Token->type == SC);
+        Token++;
+        assert (inSize);
+
+        Get_1 (tree, forPtr, token, varTable, funcTable);
+
+        assert (inSize);
+        assert (Token->type == RB);
+
+        Token++;
+        assert (inSize);
+
+        assert (Token->type == LFB);
+
+        Token++;
+        assert (inSize);
+
+        while (Token->type != RFB) Get_1 (tree, forPtr, token, varTable, funcTable);
+
+        varTable->eraseLayer ();
+        funcTable->eraseLayer ();
+
+        assert (Token->type == RFB);
+
+        Token++;
+
+        if (inSize and Token->type == ELSE) {
+
+            Nod* elsePtr = Token;
+
+            set (tree, {
+
+                Token->prev = forPtr;
+                forPtr->push_back (Token);
+            })
+
+            Token++;
+            assert (inSize);
+
+            assert (Token->type == LFB);
+
+            Token++;
+            assert (inSize);
+
+            varTable->newLayer ();
+            funcTable->newLayer ();
+
+            while (Token->type != RFB) Get_1 (tree, elsePtr, token, varTable, funcTable);
+
+            varTable->eraseLayer ();
+            funcTable->eraseLayer ();
 
             Token++;
         }
