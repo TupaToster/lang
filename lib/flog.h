@@ -8,6 +8,7 @@
 
 // DEFINE NDEBUG TO DISABLE LOGS
 
+
 extern FILE* logOutf;
 
 extern const unsigned int HashMult;

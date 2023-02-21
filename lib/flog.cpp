@@ -86,3 +86,4 @@ const char* getFormatIntern (const char* varType) {
     else if (!strcmp (varType, "h") || !strcmp (varType, "Kh")) return "%hhu";
     else return "%p";
 }
+ 

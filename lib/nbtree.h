@@ -4,7 +4,6 @@
 #include <math.h>
 #include <assert.h>
 #include "flog.h"
-#include "syntax.h"
 #include "stack.h"
 
 #ifndef NDEBUG
@@ -20,53 +19,7 @@
 #define set(tree, code) {tree->verifyHash (); code tree->countHash ();}
 
 #include "enum_autogen.h"
-
-// enum NodType {
-
-//     BLANK = 0,
-//     IF = 1,
-//     ELSE = 2,
-//     FOR = 3,
-//     WHILE = 4,
-//     CHAR = 5,
-//     INT = 6,
-//     DOUBLE = 7,
-//     STR = 8,
-//     PLUS = 9,
-//     MINUS = 10,
-//     MULT = 11,
-//     DIV = 12,
-//     DIFF = 13,
-//     SIN = 14,
-//     COS = 15,
-//     POW = 16,
-//     SC = 17,
-//     COMA = 18,
-//     VAR = 19,
-//     FUNC = 20,
-//     LB = 21,
-//     RB = 22,
-//     LSB = 23,
-//     RSB = 24,
-//     LFB = 25,
-//     RFB = 26,
-//     LESS = 27,
-//     GREATER = 28,
-//     LESS_EQ = 29,
-//     GREATER_EQ = 30,
-//     EQ = 31,
-//     EQEQ = 32,
-//     VOID = 33,
-//     RETURN = 34,
-//     AND = 35,
-//     OR = 36,
-//     INT_T = 37,
-//     DOUBLE_T = 38,
-//     CHAR_T = 39,
-//     STR_T = 40,
-//     BREAK = 41
-//     NOD_TYPE_CNT = 42
-// };
+#include "syntax_autogen.h"
 
 union NodVal {
 
@@ -259,7 +212,7 @@ struct Nod {
     void DTOR () {
 
         type = BLANK;
-        val = 0;
+        val = 0.0;
         if (next != NULL) {
             for (int i = 0; i < cap; i++) next[i] = NULL;
             free (next);
@@ -890,7 +843,6 @@ class Tree {
         }
         return true;
     }
-
 };
 
 struct NameTable {

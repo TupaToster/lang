@@ -284,7 +284,7 @@ Tree Get_G (Nod* buffer, size_t size) {
 
     Tree tree (buffer, size);
 
-    dumpNodArray (tree.getData (), tree.getSize ());
+    dumpNodArray (tree.getData (), tree.getCap ());
 
     NameTable varTable;
     NameTable funcTable;
@@ -293,12 +293,83 @@ Tree Get_G (Nod* buffer, size_t size) {
 
     while (token - tree.getData () < tree.getSize ()) Get_1 (&tree, tree.getData (), &token, &varTable, &funcTable);
 
+    dumpNodArray (tree.getData (), tree.getCap ());
+
     return tree;
 }
 
-#include "front_autogen.cpp"
+#include "front_autogen_cpp.h"
 
 #ifdef NDEBUG_TEMP
 #undef NDEBUG_TEMP
 #define NDEBUG 1
 #endif
+
+
+void writeTreeToFile (Tree* tree, const char* fileName) {
+
+    assert (tree != NULL);
+    assert (fileName != NULL);
+
+    FILE* outFile = fopen (fileName, "wb");
+    assert (outFile != NULL);
+
+    Nod* iter = tree->getData ();
+
+    int tabCnt = 0;
+
+    set (tree, {
+        for (int i = 0; i < tree->getCap (); i++) {
+
+            tree->getData ()[i].num = i;
+        }
+    })
+
+    fprintf (outFile, "Tree Cap = %d\n", tree->getCap ());
+
+    dump (*tree);
+
+    writeNodRec (tree->getData (), outFile, &tabCnt);
+}
+
+void writeNodRec (Nod* iter, FILE* outFile, int* tabCnt) {
+
+    assert (iter != NULL);
+    assert (outFile != NULL);
+    assert (tabCnt != NULL);
+
+    for (int i = 0; i < *tabCnt; i++) fprintf (outFile, "\t");
+
+    fprintf (outFile, "<%d;%d;", iter->num, iter->type);
+    if (IS_STR (iter->type)) fprintf (outFile, "\"%s\";", iter->val);
+    else fprintf (outFile, "%.16X;", iter->val);
+    fprintf (outFile, "%d> {\n", iter->size);
+
+    ++*tabCnt;
+
+    if (iter->type == VAR and iter->next[0]->type == VAR) {
+
+        for (int i = 0; i < *tabCnt; i++) fprintf (outFile, "\t");
+
+        fprintf (outFile, "<%d;0;0;0> {}\n", iter->next[0]->num);
+    }
+    else if (iter->type == FUNC and iter->next[0]->type == FUNC) {
+
+
+        for (int i = 0; i < *tabCnt; i++) fprintf (outFile, "\t");
+
+        fprintf (outFile, "<%d;0;0;0> {}\n", iter->next[0]->num);
+
+        for (int i = 1; i < iter->size; i++) writeNodRec (iter->next[i], outFile, tabCnt);
+    }
+    else
+        for (int i = 0; i < iter->size; i++) {
+            if (iter->type == VAR and iter->next[i]->type == VAR) continue;
+            if (iter->type == FUNC and iter->next[i]->type == FUNC) continue;
+            writeNodRec (iter->next[i], outFile, tabCnt);
+        }
+
+    --*tabCnt;
+    for (int i = 0; i < *tabCnt; i++) fprintf (outFile, "\t");
+    fprintf (outFile, "}\n");
+}

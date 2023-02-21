@@ -4,6 +4,8 @@
 #include <math.h>
 #include <assert.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <ctype.h>
 #include <string.h>
 
 size_t getFileSize (const char* fileName);
