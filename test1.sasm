@@ -1,0 +1,6 @@
+push 2
+push 28
+mult
+dump
+out
+hlt

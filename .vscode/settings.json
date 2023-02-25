@@ -4,6 +4,7 @@
         "type_traits": "cpp",
         "xtr1common": "cpp",
         "codegensrc": "cpp",
-        "compare": "cpp"
+        "compare": "cpp",
+        "typeinfo": "cpp"
     }
 }

@@ -1,13 +1,20 @@
-#include "front/front.h"
+#include "lib/text.h"
+#include "lib/flog.h"
+#include "lib/stack.h"
+#include "lib/nbtree.h"
 
 int main () {
 
-    size_t cap = 0;
-    size_t size = 0;
-    Nod* buffer = bufferize ("example.cpp", &size, &cap);
-    assert (buffer != NULL);
+    Text lol ("test.sasm");
 
-    Tree tree = Get_G (buffer, size);
+    for (int i = 0; i < lol.lineCnt; i++) {
 
-    writeTreeToFile (&tree, "tree_save.lol");
+        char temp = *lol.lines[i].end;
+
+        *lol.lines[i].end = '\0';
+
+        printf ("%p : %p >> \"%s\";\n", lol.lines[i].begin, lol.lines[i].end, lol.lines[i].begin);
+
+        *lol.lines[i].end = temp;
+    }
 }

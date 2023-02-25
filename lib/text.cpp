@@ -11,7 +11,9 @@ size_t getFileSize (const char* fileName) {
     return temp.st_size;
 }
 
-char* bufferizeFile (const char* fileName) {
+char* bufferizeFile (const char* fileName, size_t* size) {
+
+    if (size != NULL) *size = getFileSize (fileName);
 
     char* retVal = (char*) calloc (getFileSize (fileName) + 1, sizeof (char));
     assert (retVal != NULL);
@@ -25,3 +27,4 @@ char* bufferizeFile (const char* fileName) {
 
     return retVal;
 }
+

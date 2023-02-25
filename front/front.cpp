@@ -305,7 +305,6 @@ Tree Get_G (Nod* buffer, size_t size) {
 #define NDEBUG 1
 #endif
 
-
 void writeTreeToFile (Tree* tree, const char* fileName) {
 
     assert (tree != NULL);

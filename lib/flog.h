@@ -8,6 +8,11 @@
 
 // DEFINE NDEBUG TO DISABLE LOGS
 
+#ifndef NDEBUG
+#define dump(clas) (clas).dumpInside (#clas, __FILE__, __FUNCTION__, __LINE__) ///< NEW_STRUCT dump macros
+#else
+#define dump(clas) ;
+#endif
 
 extern FILE* logOutf;
 

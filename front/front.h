@@ -6,16 +6,13 @@
 #include <sys/stat.h>
 #include <string.h>
 #include "../lib/nbtree.h"
+#include "../lib/text.h"
 
 #include "../lib/syntax_autogen.h"
 
 #define SERVICE_SYMBOLS "]+[/;,();}<>=--"
 
 #define IS_TYPE(val) (val == INT or val == DOUBLE or val == CHAR or val == STR)
-
-size_t getFileSize (const char* fileName);
-
-char* bufferizeFile (const char* fileName);
 
 Nod* sizeUp (Nod* buffer, size_t* size, size_t* cap);
 
