@@ -3,8 +3,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <assert.h>
+#include <string.h>
 #include "flog.h"
 #include "stack.h"
+#include "text.h"
 
 #ifndef NDEBUG
 #define dump(clas) (clas).dumpInside (#clas, __FILE__, __FUNCTION__, __LINE__)
@@ -139,51 +141,31 @@ struct Nod {
         }
     }
 
-    void NodSetNext (Nod** _next = NULL, size_t _nextSize = 0) {
+    Nod (NodType _type = BLANK, NodVal _val = 0.0, Nod** _next = NULL, size_t _nextSize = 0, Nod* _prev = NULL, int _num = -1)
+        : type (_type), prev (_prev), num (_num) {
 
-        if (_next != NULL and _nextSize != 0) {
+        if (IS_STR (type)) {
 
-            cap = __max (Pow2After (_nextSize), 4);
-            size = _nextSize;
-
-            next = (Nod**) calloc (cap, sizeof (Nod*));
-            assert (next != NULL);
-
-            memcpy (next, _next, size * sizeof (Nod*));
+            if (_val.STR == NULL) val.STR = NULL;
+            else val.STR = _val.STR;
         }
-        else {
+        else val = _val;
+
+        if (_next == NULL) {
 
             cap = 4;
             size = 0;
-
-            next = (Nod**) calloc (cap, sizeof (Nod*));
-            assert (next != NULL);
         }
-    }
+        else {
 
-    Nod () : type (BLANK), val (), prev (NULL), num (-1) {
+            cap = __max (4, Pow2After (_nextSize));
+            size = _nextSize;
+        }
 
-        NodSetNext ();
-    }
+        next = (Nod**) calloc (cap, sizeof (Nod*));
+        assert (next != NULL);
 
-    Nod (NodType _type, int _val, Nod** _next = NULL, size_t _nextSize = 0, Nod* _prev = NULL, int _num = -1) : type (_type), val (_val), prev (_prev), num (_num) {
-
-        NodSetNext ();
-    }
-
-    Nod (NodType _type, double _val, Nod** _next = NULL, size_t _nextSize = 0, Nod* _prev = NULL, int _num = -1) : type (_type), val (_val), prev (_prev), num (_num) {
-
-        NodSetNext ();
-    }
-
-    Nod (NodType _type, char _val, Nod** _next = NULL, size_t _nextSize = 0, Nod* _prev = NULL, int _num = -1) : type (_type), val (_val), prev (_prev), num (_num) {
-
-        NodSetNext ();
-    }
-
-    Nod (NodType _type, char* _val, Nod** _next = NULL, size_t _nextSize = 0, Nod* _prev = NULL, int _num = -1) : type (_type), val (_val), prev (_prev), num (_num) {
-
-        NodSetNext ();
+        memcpy (next, _next, _nextSize * sizeof (Nod*));
     }
 
     /// @brief Basically a copy of assign made to prevent creating var, destructing and refilling with data when initalized from another var
@@ -512,7 +494,7 @@ class Tree {
         #define picprintf(...) fprintf (picSource, __VA_ARGS__);
 
         for (int i = 0; i < nod->size; i++) {
-            
+
             if (nod->type == VAR and nod->next[i]->type == VAR) continue;
             if (nod->type == FUNC and nod->next[i]->type == FUNC) continue;
             picprintf ("\t" "\"Nod_%d\":next_%d -> \"Nod_%d\":prev [color = \"#36f70f\"];\n", nod->num, i, (nod->next[i])->num);
@@ -566,7 +548,7 @@ class Tree {
             }
             flogprintf ("<br>");
         }
-        flogprintf ("stop\n\n");
+        flogprintf ("<hr>\n\n");
     }
 
     void dumpInside (const char* name = NULL, const char* fileName = NULL, const char* funcName = NULL, size_t line = 0, void (*dumpFunc) (Nod* obj) = NULL) {
@@ -665,6 +647,100 @@ class Tree {
         countHash ();
     }
 
+    Tree (char* fileName) {
+
+        assert (fileName != NULL);
+
+        fileName = bufferizeFile (fileName);
+        char* buffer = fileName;
+
+        assert (buffer != NULL);
+
+        canL      = CANL; ///< left cannary of struct
+        hash      = 0;    ///< hash value
+        errCode   = ok;   ///< error code
+        cap       = 4;
+        size      = 0;
+        canR      = CANR; ///< right cannary of struct
+
+        data = (Nod*) calloc (cap * sizeof (Nod) + 2 * sizeof (unsigned int), 1);
+        assert (data != NULL);
+
+        dataCanL = (unsigned int*) data;
+        *dataCanL = CANL;
+
+        data = (Nod*) (dataCanL + 1);
+
+        dataCanR = (unsigned int*) (data + cap);
+        *dataCanR = CANR;
+
+        vacant = data;
+
+        for (int i = 0; i < cap - 1; i++) {
+
+            data[i].DTOR ();
+            data[i].prev = data + i + 1;
+            if (i == cap - 1) data[i].prev = NULL;
+        }
+
+        NodReadRec (NULL, &buffer);
+
+        errCode ^= WRONG_HASH;
+        countHash ();
+    }
+
+    void NodReadRec (Nod* iter, char** buffer) {
+
+        assert (buffer != NULL);
+        assert (*buffer != NULL);
+
+        int num = 0;
+        int delta = 0;
+        int _size = 0;
+
+        sscanf (*buffer, " <%d", &num);
+
+        if (iter != NULL and num < iter->num) {
+
+            sscanf (*buffer, " <%d;0;0;0> {}%n", &num, &delta);
+            assert (delta != 0);
+            *buffer += delta;
+
+            iter->push_back (data + num);
+            return;
+        }
+
+        Nod* _next = add (Nod (), iter);
+
+        sscanf (*buffer, " <%d;%d;%n", &_next->num, &_next->type, &delta);
+        assert (delta != 0);
+        *buffer += delta;
+
+        if (**buffer == '\"') {
+
+            sscanf (*buffer, "\"%*[^\"]%n\"", &delta);
+            assert (delta != 0);
+
+            _next->val.STR = (char*) calloc (delta, sizeof (char));
+            assert (_next->val.STR != NULL);
+            sscanf (*buffer, "\"%[^\"]\";%d> {%n", _next->val.STR, &_size, &delta);
+        }
+        else sscanf (*buffer, "%X;%d> {%n", (size_t*) &_next->val, &_size, &delta);
+
+        assert (delta != NULL);
+        *buffer += delta;
+
+
+        for (int i = 0; i < _size; i++) {
+
+            NodReadRec (_next, buffer);
+        }
+
+        sscanf (*buffer, " }%n", &delta);
+        assert (delta != 0);
+        *buffer += delta;
+    }
+
     void DTOR () {
 
         recDtor (data);
@@ -696,8 +772,6 @@ class Tree {
         Nod* retVal = vacant;
         vacant = vacant->prev;
 
-        flog (retVal);
-        dumpInside ();
         retVal->assign (&val);
 
         if (prev != NULL) {

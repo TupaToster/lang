@@ -85,7 +85,8 @@ clean:
 	rm -rf *.exe* *.png *.dot *.o *.wtf
 	clear
 
-test: all main.cpp
+test: all main.o $(addprefix $(OBJDIR), $(LIB:.cpp=.o))
+	clear
 	$(CC) $(CFLAGS) -c main.cpp
 	$(CC) $(CFLAGS) main.o $(addprefix $(OBJDIR), $(LIB:.cpp=.o)) -o test.exe
 	./test.exe

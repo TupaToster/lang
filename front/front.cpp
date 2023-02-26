@@ -324,8 +324,6 @@ void writeTreeToFile (Tree* tree, const char* fileName) {
         }
     })
 
-    fprintf (outFile, "Tree Cap = %d\n", tree->getCap ());
-
     dump (*tree);
 
     writeNodRec (tree->getData (), outFile, &tabCnt);
@@ -340,7 +338,10 @@ void writeNodRec (Nod* iter, FILE* outFile, int* tabCnt) {
     for (int i = 0; i < *tabCnt; i++) fprintf (outFile, "\t");
 
     fprintf (outFile, "<%d;%d;", iter->num, iter->type);
-    if (IS_STR (iter->type)) fprintf (outFile, "\"%s\";", iter->val);
+    if (IS_STR (iter->type)) {
+        if (iter->val.STR == NULL) fprintf (outFile, "%.16X;", iter->val);
+        else fprintf (outFile, "\"%s\";", iter->val);
+    }
     else fprintf (outFile, "%.16X;", iter->val);
     fprintf (outFile, "%d> {\n", iter->size);
 
