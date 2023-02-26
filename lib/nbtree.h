@@ -736,6 +736,8 @@ class Tree {
             NodReadRec (_next, buffer);
         }
 
+        dumpNodArray (data, size);
+
         sscanf (*buffer, " }%n", &delta);
         assert (delta != 0);
         *buffer += delta;
