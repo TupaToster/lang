@@ -7,18 +7,20 @@ DEPSDIR=_deps/
 CODEGENDIR=codeGenerator/
 LIBDIR=lib/
 FRONTDIR=front/
+BACKDIR=back/
 CPUDIR=cpu/
 ASMDIR=asm/
 
 CODEGEN=codeGenerator.cpp
 FRONT=front.cpp frontMain.cpp
+BACK=back.cpp backMain.cpp
 LIB=flog.cpp text.cpp syntax_autogen.cpp
 ASM=asm_funcs.cpp asm.cpp
 CPU=proc.cpp
 
 .INCLUDE_DIRS=$(DEPSDIR)
 
-all: $(OBJDIR) $(DEPSDIR) codeGen.exe front.exe asm.exe cpu.exe
+all: codeGen.exe front.exe asm.exe cpu.exe
 
 -include $(addprefix $(DEPSDIR),*.d)
 
@@ -62,16 +64,29 @@ $(OBJDIR)%.o: $(ASMDIR)%.cpp
 	rm input.tmp line.tmp
 	$(CC) -c $(CFLAGS) $< -o $@
 
+$(OBJDIR)%.o: $(BACKDIR)%.cpp
+	$(CC) -M $(CFLAGS) $< -o $(DEPSDIR)$(@F:.o=.d)
+	echo "$(OBJDIR)" > line.tmp
+	mv $(DEPSDIR)$(@F:.o=.d) input.tmp
+	head -c -1 -q line.tmp input.tmp > $(DEPSDIR)$(@F:.o=.d)
+	rm input.tmp line.tmp
+	$(CC) -c $(CFLAGS) $< -o $@
+
+
 front.exe: $(addprefix $(OBJDIR),$(LIB:.cpp=.o) $(FRONT:.cpp=.o))
 	$(CC) $(CFLAGS) $^ -o $@
 
-codeGen.exe: $(addprefix $(OBJDIR), $(LIB:.cpp=.o) $(CODEGEN:.cpp=.o))
-	$(CC) $(CFLAGS) $^ -o $@
+codeGen.exe: $(DEPSDIR) $(OBJDIR) $(addprefix $(OBJDIR), flog.o text.o $(CODEGEN:.cpp=.o))
+	$(CC) $(CFLAGS) $(addprefix $(OBJDIR), $(^F)) -o $@
+	./$@ $(CODEGENDIR)/codeGenSrc
 
 cpu.exe: $(addprefix $(OBJDIR),$(LIB:.cpp=.o) $(CPU:.cpp=.o))
 	$(CC) $(CFLAGS) $^ -o $@
 
 asm.exe: $(addprefix $(OBJDIR),$(LIB:.cpp=.o) $(ASM:.cpp=.o))
+	$(CC) $(CFLAGS) $^ -o $@
+
+back.exe: $(addprefix $(OBJDIR), $(LIB:.cpp=.o) $(BACK:.cpp=.o))
 	$(CC) $(CFLAGS) $^ -o $@
 
 $(DEPSDIR):

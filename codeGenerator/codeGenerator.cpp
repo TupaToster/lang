@@ -10,8 +10,10 @@
 const char* ENUM = "./lib/enum_autogen.h";
 const char* SYNTAXCPP = "./lib/syntax_autogen.cpp";
 const char* SYNTAXH = "./lib/syntax_autogen.h";
-const char* FRONTCPP_INCLUDE = "./front/front_autogen.cpp";
+const char* FRONTCPP_INCLUDE = "./front/front_autogen_cpp.h";
 const char* FRONTH_INCLUDE = "./front/front_autogen.h";
+const char* BACKCPP_INCLUDE = "./back/back_autogen_cpp.h";
+const char* BACKH_INCLUDE = "./back/back_autogen.h";
 
 #define WARNINGMESSAGE "//!!!!!!!!!! This file is generated automatically. To change it's contents, please change source file for auto generation. !!!!!!!\n"
 
@@ -35,17 +37,23 @@ int main (int argc, char* argv[]) {
     FILE* syntax_h = fopen (SYNTAXH, "wb");
     FILE* front_cpp = fopen (FRONTCPP_INCLUDE, "wb");
     FILE* front_h = fopen (FRONTH_INCLUDE, "wb");
+    FILE* back_cpp = fopen (BACKCPP_INCLUDE, "wb");
+    FILE* back_h = fopen (BACKH_INCLUDE, "wb");
     assert (enumFile != NULL);
     assert (syntax_cpp != NULL);
     assert (syntax_h != NULL);
     assert (front_cpp != NULL);
     assert (front_h != NULL);
+    assert (back_cpp != NULL);
+    assert (back_h != NULL);
 
     setvbuf (enumFile, NULL, _IONBF, 0);
     setvbuf (syntax_cpp, NULL, _IONBF, 0);
     setvbuf (syntax_h, NULL, _IONBF, 0);
     setvbuf (front_cpp, NULL, _IONBF, 0);
     setvbuf (front_h, NULL, _IONBF, 0);
+    setvbuf (back_cpp, NULL, _IONBF, 0);
+    setvbuf (back_h, NULL, _IONBF, 0);
 
     fprintf (enumFile, WARNINGMESSAGE "enum NodType {\n\nBLANK = 0,\n");
     fprintf (syntax_cpp, WARNINGMESSAGE "const char* SyntaxStrings[] = {\n\n");
@@ -55,6 +63,8 @@ int main (int argc, char* argv[]) {
                        "extern const char* SyntaxStrings[];");
     fprintf (front_cpp, WARNINGMESSAGE);
     fprintf (front_h, WARNINGMESSAGE);
+    fprintf (back_cpp, WARNINGMESSAGE);
+    fprintf (back_h, WARNINGMESSAGE);
     fclose (syntax_h);
 
     char* SyntaxStrings[100] = {0};
@@ -99,7 +109,7 @@ int main (int argc, char* argv[]) {
             "}\n", enumCnt, enumCnt + 1, enumCnt, enumCnt + 1);
 
             delta = 0;
-            sscanf (src + iter, " )%n", &delta);
+            sscanf (src + iter, " ,%n", &delta);
             if (delta == 0) return __LINE__;
             iter += delta;
 
@@ -142,7 +152,7 @@ int main (int argc, char* argv[]) {
             iter += delta + 1;
 
             delta = 0;
-            sscanf (src + iter, " )%n", &delta);
+            sscanf (src + iter, " ,%n", &delta);
             if (delta == 0) return __LINE__;
             iter += delta;
 
@@ -166,7 +176,7 @@ int main (int argc, char* argv[]) {
             "}\n", enumCnt, enumCnt, enumCnt + 1);
 
             delta = 0;
-            sscanf (src + iter, " )%n", &delta);
+            sscanf (src + iter, " ,%n", &delta);
             if (delta == 0) return __LINE__;
             iter += delta;
 
@@ -175,7 +185,7 @@ int main (int argc, char* argv[]) {
         else if (intInput == 0){
 
             delta = 0;
-            sscanf (src + iter, " )%n", &delta);
+            sscanf (src + iter, " ,%n", &delta);
             if (delta == 0) return __LINE__;
             iter += delta;
 
@@ -188,6 +198,70 @@ int main (int argc, char* argv[]) {
 
         }
         else return __LINE__;
+
+        delta = 0;
+        sscanf (src + iter, " %d%n", &intInput, &delta);
+        if (delta == 0) return __LINE__;
+        iter += delta;
+
+        if (intInput == 0) {
+
+            delta = 0;
+            sscanf (src + iter, " )%n", &delta);
+            if (delta == 0) return __LINE__;
+            iter += delta;
+
+            fprintf (back_cpp, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable) {\n"
+                "   //This is a buffer function that allows to write call_next in all functions in codeGenSrc\n"
+                "   Set_%d (tree, iter, token, varTable, funcTable);\n"
+                "}\n", enumCnt, enumCnt + 1);
+
+            fprintf (back_h, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
+        }
+        else if (intInput == 1) {
+
+            fprintf (back_cpp, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable) {\n"
+                "   assert (tree != NULL);\n"
+                "   assert (iter != NULL);\n"
+                "   assert (outFile != NULL);\n"
+                "   assert (varTable != NULL);\n"
+                "   assert (funcTable != NULL);\n\n", enumCnt);
+
+            delta = 0;
+            sscanf (src + iter, " , {%n", &delta);
+            if (delta == 0) return __LINE__;
+            iter += delta;
+
+            int cnt = 1;
+            for (delta = 0; iter + delta < strlen (src);delta++) {
+
+                if (src[iter + delta] == '{') cnt++;
+                else if (src[iter + delta] == '}') cnt--;
+
+                if (cnt == 0) break;
+            }
+
+            for (int i = 0; i <= delta; i++) {
+
+                if (strncmp ("call_next", src + iter + i, 9) == 0) {
+
+                    fprintf (back_cpp, "Set_%d", enumCnt + 1);
+                    i += 9;
+                }
+                else fprintf (back_cpp, "%c", src[iter + i]);
+            }
+
+            fprintf (back_cpp, "\n");
+
+            iter += delta + 1;
+
+            delta = 0;
+            sscanf (src + iter, " )%n", &delta);
+            if (delta == 0) return __LINE__;
+            iter += delta;
+
+            fprintf (back_h, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
+        }
 
         enumCnt++;
     }
@@ -204,6 +278,17 @@ int main (int argc, char* argv[]) {
 
     fprintf (front_h, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
 
+    fprintf (back_cpp, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable) {\n"
+            "    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc\n"
+            "    printf (\"Wrong token on ptr: %%p, stopping Get\\n\\n\", Token);\n"
+            "    dumpNodArray (tree->getData (), tree->getSize ());\n"
+            "    dump (*tree);\n"
+            "    dump (*varTable);\n"
+            "    dump (*funcTable);\n"
+            "    assert (\"Wrong token here!\" == NULL);\n"
+            "}\n", enumCnt);
+
+    fprintf (back_h, "void Set_%d (Tree* tree, Nod*iter, FILE* outFile, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
 
     fprintf (enumFile, "NOD_TYPE_CNT = %d\n};", enumCnt);
 

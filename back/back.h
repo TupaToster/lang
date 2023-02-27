@@ -7,4 +7,3 @@
 #include "../lib/text.h"
 #include "../lib/flog.h"
 #include "../lib/cmd.h"
-
