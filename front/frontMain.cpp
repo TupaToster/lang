@@ -15,5 +15,5 @@ int main (int argc,  char* argv[]) {
 
     Tree tree = Get_G (buffer, size);
 
-    writeTreeToFile (&tree, argv[2]);
+    tree.writeToFile (argv[2]);
 }

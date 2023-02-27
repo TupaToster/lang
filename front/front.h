@@ -33,7 +33,3 @@ Tree Get_G (Nod* buffer, size_t size);
 #include "front_autogen.h"
 
 void dumpNodArray (Nod* array, size_t cap);
-
-void writeTreeToFile (Tree* tree, const char* fileName);
-
-void writeNodRec (Nod* iter, FILE* outFile, int* tabCnt);

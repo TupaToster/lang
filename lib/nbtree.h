@@ -217,8 +217,8 @@ struct Nod {
         prev = src->prev;
         num = src->num;
 
-        if (!IS_STR (type)) val = src->val;
-        else val = src->val.STR;
+        if (IS_STR (type)) val = src->val.STR;
+        else val = src->val;
 
         cap = src->cap;
         size = src->size;
@@ -532,6 +532,136 @@ class Tree {
         #undef picprintf
     }
 
+    void NodReadRec (int iter, char** buffer) {
+
+        assert (buffer != NULL);
+        assert (*buffer != NULL);
+        assert (iter >= -1);
+
+        int num = 0;
+        int delta = 0;
+        int _size = 0;
+
+        sscanf (*buffer, " <%d;0;0;0> {}%n", &num, &delta);
+
+        if (delta > 0 and iter != -1 and data[iter].num > num) {
+
+            assert (delta > 0);
+            assert (data[iter].type == VAR and data[num].type == VAR or data[iter].type == FUNC and data[num].type == FUNC);
+            *buffer += delta;
+
+            data[iter].push_back (data + num);
+            return;
+        }
+
+        sscanf (*buffer, " <%d;%n", &num, &delta);
+        assert (delta > 0);
+        *buffer += delta;
+
+        int _next = add (Nod (), iter == -1 ? NULL : (data + iter)) - data;
+        assert (_next == num);
+
+        sscanf (*buffer, " <%*d;%d;%n", &(data[_next].type), &delta);
+        assert (delta > 0);
+        *buffer += delta;
+
+        if (**buffer == '\"') {
+
+            sscanf (*buffer, "\"%*[^\"]%n\"", &delta);
+            assert (delta > 0);
+
+            data[_next].val.STR = (char*) calloc (delta, sizeof (char));
+            assert (data[_next].val.STR != NULL);
+            sscanf (*buffer, "\"%[^\"]\";%d> {%n", data[_next].val.STR, &_size, &delta);
+        }
+        else sscanf (*buffer, "%X;%d> {%n", (size_t*) &data[_next].val, &_size, &delta);
+
+        assert (delta > 0);
+        *buffer += delta;
+
+        for (int i = 0; i < _size; i++) {
+
+            NodReadRec (_next, buffer);
+        }
+
+        sscanf (*buffer, " }%n", &delta);
+        assert (delta > 0);
+        *buffer += delta;
+    }
+
+    Nod* resize (Nod* invariant = NULL) {
+
+        errCheck ();
+
+        if (size > cap * 3 / 8 and size < cap or size < cap and cap == MIN_CAP) return invariant;
+
+        if (cap > MIN_CAP and size <= cap * 3 / 8) cap /= 2;
+        else if (size == cap) cap *= 2;
+
+        data = (Nod*) calloc (cap * sizeof (Nod) + 2 * sizeof (unsigned int), 1);
+        assert (data != NULL);
+
+        Nod* iter = (Nod*) ((unsigned int*) data + 1);
+
+        for (int i = 0; i < cap; i++) iter[i] = Nod();
+
+        writeRaw (&iter, (Nod*) (dataCanL + 1));
+
+        if (invariant != NULL) invariant = invariant->prev;
+
+        fixPointers ((Nod*) (dataCanL + 1));
+
+        for (Nod* i = (Nod*) (dataCanL + 1); i < (Nod*) dataCanR; i++)
+            if (i->prev != NULL or i == (Nod*) (dataCanL + 1)) i->DTOR (); //fix of questionable quality
+
+        free (dataCanL);
+
+        dataCanL = (unsigned int*) data;
+        *dataCanL = CANL;
+
+        data = (Nod*) (dataCanL + 1);
+
+        dataCanR = (unsigned int*) (data + cap);
+        *dataCanR = CANR;
+
+        data->prev = NULL;
+        for (int i = size; i < cap - 1; i++) {
+
+            data[i].DTOR ();
+            data[i].prev = data + i + 1;
+        }
+
+        data[cap - 1].DTOR ();
+        data[cap - 1].prev = NULL;
+
+        vacant = data + size;
+
+        countHash ();
+
+        invariant = resize (invariant);
+
+        return invariant;
+    }
+
+    void writeRaw (Nod** dst, Nod* src) {
+
+        (*dst)->assign (src);
+        src->prev = *dst;
+        *dst += 1;
+
+        for (int i = 0; i < src->size; i++) writeRaw (dst, src->next[i]);
+    }
+
+    void fixPointers (Nod* iter) {
+
+        for (int i = 0; i < iter->size; i++) {
+
+            iter->prev->next[i] = iter->next[i]->prev;
+            fixPointers (iter->next[i]);
+            iter->prev->next[i]->prev = iter->prev;
+        }
+    }
+
     public:
 
     void dumpNodArray (Nod* array, size_t cap) {
@@ -637,7 +767,7 @@ class Tree {
 
         vacant = data + size;
 
-        for (int i = size; i < cap - 1; i++) {
+        for (int i = size; i < cap; i++) {
 
             data[i].DTOR ();
             data[i].prev = data + i + 1;
@@ -647,21 +777,18 @@ class Tree {
         countHash ();
     }
 
-    Tree (char* fileName) {
-
-        assert (fileName != NULL);
-
-        fileName = bufferizeFile (fileName);
-        char* buffer = fileName;
+    Tree (char* buffer) {
 
         assert (buffer != NULL);
+
+        buffer = bufferizeFile (buffer);
 
         canL      = CANL; ///< left cannary of struct
         hash      = 0;    ///< hash value
         errCode   = ok;   ///< error code
-        cap       = 4;
-        size      = 0;
         canR      = CANR; ///< right cannary of struct
+        cap = 4;
+        size = 0;
 
         data = (Nod*) calloc (cap * sizeof (Nod) + 2 * sizeof (unsigned int), 1);
         assert (data != NULL);
@@ -676,69 +803,93 @@ class Tree {
 
         vacant = data;
 
-        for (int i = 0; i < cap - 1; i++) {
+        for (int i = 0; i < cap; i++) {
 
             data[i].DTOR ();
             data[i].prev = data + i + 1;
             if (i == cap - 1) data[i].prev = NULL;
         }
 
-        NodReadRec (NULL, &buffer);
+        errCode = WRONG_HASH;
 
-        errCode ^= WRONG_HASH;
+        while (*buffer != '\0' and *buffer == '<') {
+
+            if (size == cap) {
+
+                cap *= 2;
+
+                data = (Nod*) calloc (cap * sizeof (Nod) + 2 * sizeof (unsigned int), 1);
+                assert (data != NULL);
+
+                Nod* iter = (Nod*) ( (unsigned int*)(data) + 1);
+
+                for (Nod* i = (Nod*) (dataCanL + 1); i < (Nod*) dataCanR; i++){
+
+                    iter->assign (i);
+                    i->DTOR ();
+                    iter++;
+                }
+
+                for (int i = 0; i < cap / 2; i++) {
+
+                    iter[i].DTOR ();
+                }
+
+                free (dataCanL);
+
+                dataCanL = (unsigned int*) data;
+                *dataCanL = CANL;
+
+                data = (Nod*) (dataCanL + 1);
+
+                dataCanR = (unsigned int*) (data + cap);
+                *dataCanR = CANR;
+            }
+
+            data[size] = Nod ();
+
+            sscanf (buffer, "<%d;%n", &data[size].type, &data[size].num);
+            assert (data[size].num > 0);
+            buffer += data[size].num;
+            data[size].num = 0;
+
+            if (*buffer == '\"') {
+
+                sscanf (buffer, "\"%*[^\"]%n\">", &data[size].num);
+                assert (data[size].num > 0);
+
+                data[size].val.STR = (char*) calloc (data[size].num, sizeof (char));
+                assert (data[size].val.STR != NULL);
+
+                sscanf (buffer, "\"%[^\"]\"> %n", data[size].val.STR, &data[size].num);
+
+            }
+            else sscanf (buffer, "%X> %n", (size_t*) &data[size].val, &data[size].num);
+
+
+            assert (data[size].num > 0);
+            buffer += data[size].num;
+
+            size++;
+        }
+
+        while (*buffer != '\0' and *buffer == '{') {
+
+            int src = -1;
+            int dst = -1;
+            int delta = 0;
+
+            sscanf (buffer, "{%d -> %d} %n", &src, &dst, &delta);
+            assert (delta > 0);
+            buffer += delta;
+
+            data[src].push_back (data + dst);
+        }
+
+        errCode = ok;
         countHash ();
-    }
 
-    void NodReadRec (Nod* iter, char** buffer) {
-
-        assert (buffer != NULL);
-        assert (*buffer != NULL);
-
-        int num = 0;
-        int delta = 0;
-        int _size = 0;
-
-        sscanf (*buffer, " <%d", &num);
-
-        if (iter != NULL and num < iter->num) {
-
-            sscanf (*buffer, " <%d;0;0;0> {}%n", &num, &delta);
-            assert (delta != 0);
-            *buffer += delta;
-
-            iter->push_back (data + num);
-            return;
-        }
-
-        Nod* _next = add (Nod (), iter);
-
-        sscanf (*buffer, " <%d;%d;%n", &_next->num, &_next->type, &delta);
-        assert (delta != 0);
-        *buffer += delta;
-
-        if (**buffer == '\"') {
-
-            sscanf (*buffer, "\"%*[^\"]%n\"", &delta);
-            assert (delta != 0);
-
-            _next->val.STR = (char*) calloc (delta, sizeof (char));
-            assert (_next->val.STR != NULL);
-            sscanf (*buffer, "\"%[^\"]\";%d> {%n", _next->val.STR, &_size, &delta);
-        }
-        else sscanf (*buffer, "%X;%d> {%n", (size_t*) &_next->val, &_size, &delta);
-
-        assert (delta != NULL);
-        *buffer += delta;
-
-
-        for (int i = 0; i < _size; i++) {
-
-            NodReadRec (_next, buffer);
-        }
-
-        sscanf (*buffer, " }%n", &delta);
-        assert (delta != 0);
-        *buffer += delta;
+        dumpNodArray (data, cap);
     }
 
     void DTOR () {
@@ -787,80 +938,6 @@ class Tree {
         countHash ();
 
         return retVal;
-    }
-
-    Nod* resize (Nod* invariant = NULL) {
-
-        errCheck ();
-
-        if (size > cap * 3 / 8 and size < cap or size < cap and cap == MIN_CAP) return invariant;
-
-        if (cap > MIN_CAP and size <= cap * 3 / 8) cap /= 2;
-        else if (size == cap) cap *= 2;
-
-
-        data = (Nod*) calloc (cap * sizeof (Nod) + 2 * sizeof (unsigned int), 1);
-        assert (data != NULL);
-
-        Nod* iter = (Nod*) ((unsigned int*) data + 1);
-
-        for (int i = 0; i < cap; i++) iter[i] = Nod();
-
-        writeRaw (&iter, (Nod*) (dataCanL + 1));
-
-        if (invariant != NULL) invariant = invariant->prev;
-
-        fixPointers ((Nod*) (dataCanL + 1));
-
-        for (Nod* i = (Nod*) (dataCanL + 1); i < (Nod*) dataCanR; i++)
-            if (i->prev != NULL or i == (Nod*) (dataCanL + 1)) i->DTOR (); //fix of questionable quality
-
-        free (dataCanL);
-
-        dataCanL = (unsigned int*) data;
-        *dataCanL = CANL;
-
-        data = (Nod*) (dataCanL + 1);
-
-        dataCanR = (unsigned int*) (data + cap);
-        *dataCanR = CANR;
-
-        data->prev = NULL;
-        for (int i = size; i < cap - 1; i++) {
-
-            data[i].DTOR ();
-            data[i].prev = data + i + 1;
-        }
-
-        data[cap - 1].DTOR ();
-        data[cap - 1].prev = NULL;
-
-        vacant = data + size;
-
-        countHash ();
-
-        invariant = resize (invariant);
-
-        return invariant;
-    }
-
-    void writeRaw (Nod** dst, Nod* src) {
-
-        (*dst)->assign (src);
-        src->prev = *dst;
-        *dst += 1;
-
-        for (int i = 0; i < src->size; i++) writeRaw (dst, src->next[i]);
-    }
-
-    void fixPointers (Nod* iter) {
-
-        for (int i = 0; i < iter->size; i++) {
-
-            iter->prev->next[i] = iter->next[i]->prev;
-            fixPointers (iter->next[i]);
-            iter->prev->next[i]->prev = iter->prev;
-        }
     }
 
     Nod* getData () {
@@ -916,6 +993,55 @@ class Tree {
             return false;
         }
         return true;
+    }
+
+    void writeToFile (const char* fileName) {
+
+        assert (fileName != NULL);
+        errCheck ();
+
+        FILE* outFile = fopen (fileName, "wb");
+        assert (outFile != NULL);
+
+        dump (*this);
+
+        int NodCnt = 1;
+
+        fprintf (outFile, "<0;0>\n");
+
+
+        data->num = 0;
+
+        for (int i = 1; i < size; i++) {
+
+            if (data[i].prev != NULL) {
+
+                fprintf (outFile, "<%d;", data[i].type);
+
+                if (IS_STR (data[i].type)) fprintf (outFile, "\"%s\"", data[i].val.STR);
+                else fprintf (outFile, "%.16X", data[i].val.LF);
+
+                fprintf (outFile, ">\n");
+
+                data[i].num = NodCnt;
+
+                NodCnt++;
+            }
+            else data[i].num = -1;
+        }
+
+        for (int i = 0; i < size; i++) {
+
+            if (data[i].num > -1) {
+
+                for (int j = 0; j < data[i].size; j++)
+                    fprintf (outFile, "{%d -> %d}\n", data[i].num, data[i].next[j]->num);
+            }
+        }
+
+        fclose (outFile);
+
+        countHash ();
     }
 };
 
