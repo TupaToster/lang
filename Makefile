@@ -11,7 +11,7 @@ BACKDIR=back/
 CPUDIR=cpu/
 ASMDIR=asm/
 
-CODEGEN=codeGenerator.cpp
+CODEGEN=codeGenerator.cpp flog.cpp text.cpp
 FRONT=front.cpp frontMain.cpp
 BACK=back.cpp backMain.cpp
 LIB=flog.cpp text.cpp syntax_autogen.cpp
@@ -76,8 +76,8 @@ $(OBJDIR)%.o: $(BACKDIR)%.cpp
 front.exe: $(addprefix $(OBJDIR),$(LIB:.cpp=.o) $(FRONT:.cpp=.o))
 	$(CC) $(CFLAGS) $^ -o $@
 
-codeGen.exe: $(DEPSDIR) $(OBJDIR) $(addprefix $(OBJDIR), flog.o text.o $(CODEGEN:.cpp=.o))
-	$(CC) $(CFLAGS) $(addprefix $(OBJDIR), $(^F)) -o $@
+codeGen.exe: $(DEPSDIR) $(OBJDIR) $(addprefix $(OBJDIR), $(CODEGEN:.cpp=.o)) codeGenerator/codeGenSrc
+	$(CC) $(CFLAGS) $(addprefix $(OBJDIR), $(CODEGEN:.cpp=.o)) -o $@
 	./$@ $(CODEGENDIR)/codeGenSrc
 
 cpu.exe: $(addprefix $(OBJDIR),$(LIB:.cpp=.o) $(CPU:.cpp=.o))

@@ -4,8 +4,15 @@ void Set_1 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable
    Set_2 (tree, iter, token, varTable, funcTable);
 }
 void Set_2 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable) {
-   //This is a buffer function that allows to write call_next in all functions in codeGenSrc
-   Set_3 (tree, iter, token, varTable, funcTable);
+   assert (tree != NULL);
+   assert (iter != NULL);
+   assert (outFile != NULL);
+   assert (varTable != NULL);
+   assert (funcTable != NULL);
+
+
+
+    printf ("lol");
 }
 void Set_3 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable) {
    //This is a buffer function that allows to write call_next in all functions in codeGenSrc
