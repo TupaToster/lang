@@ -24,13 +24,56 @@ DEFCMD (LESSEQ, "<=", 1, 0)
 
 DEFCMD (GREATEREQ, ">=", 1, 0)
 
-DEFCMD (PLUS, "+", 1, 0)
+DEFCMD (PLUS, "+", 1, 1, {
 
-DEFCMD (MINUS, "-", 1, 0)
+    if (iter->type == PLUS) {
 
-DEFCMD (MULT, "*", 1, 0)
+        assert (iter->size == 2);
 
-DEFCMD (DIV, "/", 1, 0)
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable);
+        fprintf (outFile, "add\n");
+    }
+    else call_next (tree, iter, outFile, varTable, funcTable);
+})
+
+DEFCMD (MINUS, "-", 1, 1, {
+
+    if (iter->type == MINUS) {
+
+        assert (iter->size == 2);
+
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable);
+        fprintf (outFile, "sub\n");
+    }
+    else call_next (tree, iter, outFile, varTable, funcTable);
+})
+
+DEFCMD (MULT, "*", 1, 1, {
+
+    if (iter->type == MULT) {
+
+        assert (iter->size == 2);
+
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable);
+        fprintf (outFile, "mult\n");
+    }
+    else call_next (tree, iter, outFile, varTable, funcTable);
+})
+
+DEFCMD (DIV, "/", 1, 1, {
+
+    if (iter->type == DIV) {
+
+        assert (iter->size == 2);
+
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable);
+        fprintf (outFile, "div\n");
+    }
+})
 
 DEFCMD (INT_CONST, "_INT_CONST", 3, 0)
 
@@ -39,6 +82,13 @@ DEFCMD (DOUBLE_CONST, "_DOUBLE_CONST", 3, 0)
 DEFCMD (CHAR_CONST, "_CHAR_CONST", 3, 0)
 
 DEFCMD (STR_CONST, "_STR_CONST", 3, 0)
+
+DEFCMD (OUT, "out", 3, 1, {
+
+    assert (iter->size < 2);
+    fprintf (outFile, "out\n");
+    if (iter->size == 1) call_next (tree, iter->next[0], outFile, varTable, funcTable);
+})
 
 DEFCMD (BREAK, "break", 3, 0)
 

@@ -71,5 +71,7 @@ void Set_35 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTabl
 
 void Set_36 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable);
 
-void Set_37 (Tree* tree, Nod*iter, FILE* outFile, NameTable* varTable, NameTable* funcTable);
+void Set_37 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable);
+
+void Set_38 (Tree* tree, Nod*iter, FILE* outFile, NameTable* varTable, NameTable* funcTable);
 

@@ -213,7 +213,7 @@ int main (int argc, char* argv[]) {
 
             fprintf (back_cpp, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable) {\n"
                 "   //This is a buffer function that allows to write call_next in all functions in codeGenSrc\n"
-                "   Set_%d (tree, iter, token, varTable, funcTable);\n"
+                "   Set_%d (tree, iter, outFile, varTable, funcTable);\n"
                 "}\n", enumCnt, enumCnt + 1);
 
             fprintf (back_h, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
