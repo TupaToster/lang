@@ -20,7 +20,7 @@ CPU=proc.cpp
 
 .INCLUDE_DIRS=$(DEPSDIR)
 
-all: codeGen.exe front.exe asm.exe cpu.exe
+all: codeGen.exe front.exe back.exe asm.exe cpu.exe
 
 -include $(addprefix $(DEPSDIR),*.d)
 

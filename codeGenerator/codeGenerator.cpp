@@ -211,16 +211,16 @@ int main (int argc, char* argv[]) {
             if (delta == 0) return __LINE__;
             iter += delta;
 
-            fprintf (back_cpp, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable) {\n"
+            fprintf (back_cpp, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt) {\n"
                 "   //This is a buffer function that allows to write call_next in all functions in codeGenSrc\n"
-                "   Set_%d (tree, iter, outFile, varTable, funcTable);\n"
+                "   Set_%d (tree, iter, outFile, varTable, funcTable, tagCnt);\n"
                 "}\n", enumCnt, enumCnt + 1);
 
-            fprintf (back_h, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
+            fprintf (back_h, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt);\n\n", enumCnt);
         }
         else if (intInput == 1) {
 
-            fprintf (back_cpp, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable) {\n"
+            fprintf (back_cpp, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt) {\n"
                 "   assert (tree != NULL);\n"
                 "   assert (iter != NULL);\n"
                 "   assert (outFile != NULL);\n"
@@ -260,8 +260,9 @@ int main (int argc, char* argv[]) {
             if (delta == 0) return __LINE__;
             iter += delta;
 
-            fprintf (back_h, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
+            fprintf (back_h, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt);\n\n", enumCnt);
         }
+        else return __LINE__;
 
         enumCnt++;
     }
@@ -278,17 +279,16 @@ int main (int argc, char* argv[]) {
 
     fprintf (front_h, "void Get_%d (Tree* tree, Nod* iter, Nod** token, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
 
-    fprintf (back_cpp, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable) {\n"
+    fprintf (back_cpp, "void Set_%d (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt) {\n"
             "    // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc\n"
-            "    printf (\"Wrong token on ptr: %%p, stopping Get\\n\\n\", Token);\n"
-            "    dumpNodArray (tree->getData (), tree->getSize ());\n"
+            "    printf (\"Wrong token on ptr: %%p, stopping Get\\n\\n\", iter);\n"
             "    dump (*tree);\n"
             "    dump (*varTable);\n"
             "    dump (*funcTable);\n"
             "    assert (\"Wrong token here!\" == NULL);\n"
             "}\n", enumCnt);
 
-    fprintf (back_h, "void Set_%d (Tree* tree, Nod*iter, FILE* outFile, NameTable* varTable, NameTable* funcTable);\n\n", enumCnt);
+    fprintf (back_h, "void Set_%d (Tree* tree, Nod*iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt);\n\n", enumCnt);
 
     fprintf (enumFile, "NOD_TYPE_CNT = %d\n};", enumCnt);
 

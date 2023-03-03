@@ -10,19 +10,115 @@ DEFCMD (SC, ";", 2, {
 
 DEFCMD (EQ, "=", 1, 0)
 
-DEFCMD (OR, "or", 1, 0)
+DEFCMD (OR, "or", 1, 1, {
 
-DEFCMD (AND, "and", 1, 0)
+    if (iter->type == OR) {
 
-DEFCMD (LESS, "<", 1, 0)
+        assert (iter->size == 2);
 
-DEFCMD (GREATER, ">", 1, 0)
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
+        fprintf (outFile, "add\n");
+    }
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
+})
 
-DEFCMD (EQEQ, "==", 1, 0)
+DEFCMD (AND, "and", 1, 1, {
 
-DEFCMD (LESSEQ, "<=", 1, 0)
+    if (iter->type == AND) {
 
-DEFCMD (GREATEREQ, ">=", 1, 0)
+        assert (iter->size == 2);
+
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
+        fprintf (outFile, "mult\n");
+    }
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
+})
+
+DEFCMD (LESS, "<", 1, 1, {
+
+    if (iter->type == LESS) {
+
+        assert (iter->size == 2);
+
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
+        fprintf (outFile, "jb :%d\npush 0\njmp :%d\n%d:\npush 1\n%d:\n", *tagCnt, *tagCnt + 1, *tagCnt, *tagCnt + 1);
+        *tagCnt += 2;
+    }
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
+})
+
+DEFCMD (GREATER, ">", 1, 1, {
+
+    if (iter->type == GREATER) {
+
+        assert (iter->size == 2);
+
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
+        fprintf (outFile, "ja :%d\npush 0\njmp :%d\n%d:\npush 1\n%d:\n", *tagCnt, *tagCnt + 1, *tagCnt, *tagCnt + 1);
+        *tagCnt += 2;
+    }
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
+})
+
+DEFCMD (EQEQ, "==", 1, 1, {
+
+    if (iter->type == EQEQ) {
+
+        assert (iter->size == 2);
+
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
+        fprintf (outFile, "je :%d\npush 0\njmp :%d\n%d:\npush 1\n%d:\n", *tagCnt, *tagCnt + 1, *tagCnt, *tagCnt + 1);
+        *tagCnt += 2;
+    }
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
+})
+
+DEFCMD (LESSEQ, "<=", 1, 1, {
+
+    if (iter->type == LESSEQ) {
+
+        assert (iter->size == 2);
+
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
+        fprintf (outFile, "jbe :%d\npush 0\njmp :%d\n%d:\npush 1\n%d:\n", *tagCnt, *tagCnt + 1, *tagCnt, *tagCnt + 1);
+        *tagCnt += 2;
+    }
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
+})
+
+DEFCMD (GREATEREQ, ">=", 1, 1, {
+
+    if (iter->type == GREATEREQ) {
+
+        assert (iter->size == 2);
+
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
+        fprintf (outFile, "jae :%d\npush 0\njmp :%d\n%d:\npush 1\n%d:\n", *tagCnt, *tagCnt + 1, *tagCnt, *tagCnt + 1);
+        *tagCnt += 2;
+    }
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
+})
+
+DEFCMD (NOTEQ, "!=", 1, 1, {
+
+    if (iter->type == NOTEQ) {
+
+        assert (iter->size == 2);
+
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
+        fprintf (outFile, "jne :%d\npush 0\njmp :%d\n%d:\npush 1\n%d:\n", *tagCnt, *tagCnt + 1, *tagCnt, *tagCnt + 1);
+        *tagCnt += 2;
+    }
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
+})
 
 DEFCMD (PLUS, "+", 1, 1, {
 
@@ -30,11 +126,11 @@ DEFCMD (PLUS, "+", 1, 1, {
 
         assert (iter->size == 2);
 
-        Set_1 (tree, iter->next[0], outFile, varTable, funcTable);
-        Set_1 (tree, iter->next[1], outFile, varTable, funcTable);
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
         fprintf (outFile, "add\n");
     }
-    else call_next (tree, iter, outFile, varTable, funcTable);
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
 })
 
 DEFCMD (MINUS, "-", 1, 1, {
@@ -43,11 +139,11 @@ DEFCMD (MINUS, "-", 1, 1, {
 
         assert (iter->size == 2);
 
-        Set_1 (tree, iter->next[0], outFile, varTable, funcTable);
-        Set_1 (tree, iter->next[1], outFile, varTable, funcTable);
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
         fprintf (outFile, "sub\n");
     }
-    else call_next (tree, iter, outFile, varTable, funcTable);
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
 })
 
 DEFCMD (MULT, "*", 1, 1, {
@@ -56,11 +152,11 @@ DEFCMD (MULT, "*", 1, 1, {
 
         assert (iter->size == 2);
 
-        Set_1 (tree, iter->next[0], outFile, varTable, funcTable);
-        Set_1 (tree, iter->next[1], outFile, varTable, funcTable);
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
         fprintf (outFile, "mult\n");
     }
-    else call_next (tree, iter, outFile, varTable, funcTable);
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
 })
 
 DEFCMD (DIV, "/", 1, 1, {
@@ -69,13 +165,23 @@ DEFCMD (DIV, "/", 1, 1, {
 
         assert (iter->size == 2);
 
-        Set_1 (tree, iter->next[0], outFile, varTable, funcTable);
-        Set_1 (tree, iter->next[1], outFile, varTable, funcTable);
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
         fprintf (outFile, "div\n");
     }
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
 })
 
-DEFCMD (INT_CONST, "_INT_CONST", 3, 0)
+DEFCMD (INT_CONST, "_INT_CONST", 3, 1, {
+
+    if (iter->type == INT_CONST) {
+
+        assert (iter->size == 0);
+
+        fprintf (outFile, "push %d\n", iter->val.I);
+    }
+    else call_next (tree, iter, outFile, varTable, funcTable, tagCnt);
+})
 
 DEFCMD (DOUBLE_CONST, "_DOUBLE_CONST", 3, 0)
 
@@ -87,7 +193,7 @@ DEFCMD (OUT, "out", 3, 1, {
 
     assert (iter->size < 2);
     fprintf (outFile, "out\n");
-    if (iter->size == 1) call_next (tree, iter->next[0], outFile, varTable, funcTable);
+    if (iter->size == 1) call_next (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
 })
 
 DEFCMD (BREAK, "break", 3, 0)
