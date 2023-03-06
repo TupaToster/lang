@@ -1,1 +1,0 @@
-_objs/syntax_autogen.o: lib/syntax_autogen.cpp
