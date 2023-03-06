@@ -216,6 +216,8 @@ class Stack {
         data = (elem_t*) (dataCanL + 1);
         dataCanR = (unsigned int*) (data + cap);
         *dataCanR = CANR;
+
+        dump (*this);
     }
 
     public:
@@ -282,10 +284,11 @@ class Stack {
 
             flogprintf ("\t" "data : <br>");
             int sizeLog10 = ceil (log10 (size));
-            for (int i = 0; i < size; i++) {
+            for (int i = 0; i < 4; i++) {
 
                 flogprintf ( "\t\t" "data[%*d] : ", sizeLog10, i);
-                flogprintf (getFormat (elem_t), data[i])
+                // flogprintf (getFormat (elem_t), data[i]);
+                flogprintf ("\"%s\" -> ip = %d", data[i].name, data[i].ip);
                 flogprintf ("<br>");
             }
         }
@@ -295,20 +298,33 @@ class Stack {
 
     void DTOR () {
 
+        dump (*this);
+
         setPoison (&errCode);
+        dump (*this);
         setPoison (&canL);
+        dump (*this);
         setPoison (&canR);
+        dump (*this);
         setPoison (&hash);
+        dump (*this);
         setPoison (&size);
+        dump (*this);
         setPoison (&cap);
 
         if (dataCanL != NULL) {
 
+        dump (*this);
             setPoison (dataCanL);
+        dump (*this);
             for (; (void*) data <= (void*) dataCanR; data++) setPoison (data);
+        dump (*this);
             free (dataCanL);
+        dump (*this);
             setPoison (&dataCanL);
+        dump (*this);
             setPoison (&data);
+        dump (*this);
             setPoison (&dataCanR);
         }
     }
@@ -327,7 +343,7 @@ class Stack {
     elem_t pop () {
 
         errCheck ();
-
+        if (size == 0) return 0;
         elem_t retVal = data[size - 1];
         setPoison (data + size - 1);
         size--;

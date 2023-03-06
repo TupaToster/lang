@@ -1,9 +1,8 @@
-#include "lib/text.h"
-#include "lib/nbtree.h"
+#include "lib/stack.h"
+#include "lib/cmd.h"
 
 int main () {
 
-    Tree lol ("tree.save");
-
-    dump (lol);
+    Stack<Tag> lol;
+    lol.push ()
 }

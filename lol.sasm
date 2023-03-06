@@ -1,33 +1,9 @@
-push 12
-pop [0]
-push [0]
-push 14
-jb :0
-push 0
-jmp :1
-0:
-push 1
-1:
-push 0
-je :2
-3:
-push [0]
-push 14
-jb :4
-push 0
-jmp :5
-4:
-push 1
-5:
-push 0
-je :6
-push [0]
-push 4
+jmp :2
+1: 3:
+dump
+dump
 add
-jmp :3
-2:
-push [0]
-push 4
 sub
-6:
+mult
+2:
 hlt

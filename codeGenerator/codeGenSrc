@@ -8,7 +8,19 @@ DEFCMD (SC, ";", 2, {
     else call_next (tree, iter, token, varTable, funcTable);
 }, 0)
 
-DEFCMD (EQ, "=", 1, 0)
+DEFCMD (EQ, "=", 1, 1, {
+
+    if (iter->type == EQ) {
+
+        assert (iter->size == 2);
+        assert (iter->next[0]->type == VAR);
+
+        Set_1 (tree, iter->next[1], outFile, tagCnt, freeMemPtr);
+
+        fprintf (outFile, "pop [%u]\n", iter->next[0]->next[0]->num);
+    }
+    else call_next (tree, iter, outFile, tagCnt, freeMemPtr);
+})
 
 DEFCMD (OR, "or", 1, 1, {
 
@@ -407,19 +419,21 @@ DEFCMD (WHILE, "while", 2, {
         fprintf (outFile, "push 0\nje :%u\n", *tagCnt);
         size_t whileEnd = *tagCnt;
         ++*tagCnt;
-
-        fprintf (outFile, "%u:\n", *tagCnt);
-
         size_t whileStart = *tagCnt;
         ++*tagCnt;
-
-        for (int i = 1; i < iter->size - (iter->next[iter->size - 1]->type == ELSE ? 1 : 0); i++) Set_1 (tree, iter->next[0], outFile, tagCnt, freeMemPtr);
-
-        fprintf (outFile, "push 0\nje :%u\n", *tagCnt);
         size_t elseEnd = *tagCnt;
         ++*tagCnt;
 
-        Set_1 (tree, iter->next[1], outFile, tagCnt, freeMemPtr);
+        fprintf (outFile, "%u:\n", whileStart);
+
+        Set_1 (tree, iter->next[0], outFile, tagCnt, freeMemPtr);
+
+        fprintf (outFile, "push 0\nje :%u\n", elseEnd);
+
+        for (int i = 1; i < iter->size - (iter->next[iter->size - 1]->type == ELSE ? 1 : 0); i++){
+            if (iter->next[i]->type == BREAK) fprintf (outFile, "jmp :%u\n", elseEnd);
+            else Set_1 (tree, iter->next[i], outFile, tagCnt, freeMemPtr);
+        }
 
         fprintf (outFile, "jmp :%u\n%u:\n", whileStart, whileEnd);
 

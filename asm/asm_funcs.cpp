@@ -65,39 +65,49 @@ void writeCode (Text* codeFile, char* outStr, Stack<Tag>* tags, size_t* Ip) {
 
     for (int i = 0; i < codeFile->lineCnt; i++) {
 
-        char cmd[CONST_STR_LEN] = "";
+        char* lBegin = codeFile->lines[i].begin;
+        char* lEnd = codeFile->lines[i].end;
+        char wrd[CONST_STR_LEN] = "";
+        int delta = 0;
 
-        sscanf (codeFile->lines[i].begin, "%s", cmd);
+        if (lBegin[0] == '#') continue;
 
-        if (cmd[0] == '#') continue;
+        while (lBegin < lEnd and sscanf (lBegin, " %[^: \n]: %n", wrd, &delta) == 1) {
+
+
+            if (delta == 0) break;
+            addTag (tags, wrd, Ip);
+            lBegin += delta;
+            delta = 0;
+        }
+
+        if (lBegin >= lEnd) continue;
 
         #define GENERAL_CMD
 
         #define DEF_CMD(name, num, arg, code)\
-            if (strcmp (cmd, #name) == 0) {\
+            if (strncmp (lBegin, #name, strlen (#name)) == 0) {\
+\
                 if (arg == 0) {\
+\
                     if (outStr != NULL) outStr[*Ip] = num;\
                     ++*Ip;\
                 }\
                 else {\
+\
                     handleArg (codeFile, i, outStr, num, tags, Ip);\
                 }\
             }\
             else
 
         #include "../lib/cmd.h"
+        if (true) {
 
-        #undef DEF_CMD
-
-        if (cmd [strlen (cmd) - 1] == ':') {
-
-            addTag (tags, cmd, Ip);
-        }
-        else {
-
-            printf ("Wrong command at line %d : <%.*s>" "\n", i+1, codeFile->lines[i].end - codeFile->lines[i].begin, codeFile->lines[i].begin);
+            printf ("Wrong command at line %d : <%.*s>" "\n", i+1, lEnd > lBegin ? lEnd - lBegin : 0, lBegin);
             Errors++;
         }
+
+        #undef DEF_CMD
     }
 }
 
@@ -206,16 +216,16 @@ void printTag (Stack<Tag>* tags, char* name, char* outStr, size_t* Ip, size_t co
         }
     }
 
-    if (outStr != NULL) *(int*)(outStr + *Ip) = -1;
+    if (outStr != NULL) *(unsigned long long*)(outStr + *Ip) = -1;
     *Ip += sizeof (elem_t);
 }
 
 void addTag (Stack<Tag>* tags, const char* name, size_t* Ip) {
 
     for (int i = 0; i < tags->getSize (); i++)
-        if (tags->getData ()[i].ip == (int) *Ip)
+        if (tags->getData ()[i].ip == (elem_t) *Ip)
             return;
 
-    tags->push (Tag (name, (int)*Ip));
-    tags->getData ()[tags->getSize () - 1].name[strlen (tags->getData ()[tags->getSize () - 1].name) - 1] = '\0';
+    tags->push (Tag (name, (elem_t)*Ip));
+    // tags->getData ()[tags->getSize () - 1].name[strlen (tags->getData ()[tags->getSize () - 1].name) - 1] = '\0';
 }

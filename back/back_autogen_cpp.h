@@ -4,8 +4,22 @@ void Set_1 (Tree* tree, Nod* iter, FILE* outFile, size_t* tagCnt, size_t* freeMe
    Set_2 (tree, iter, outFile, tagCnt, freeMemPtr);
 }
 void Set_2 (Tree* tree, Nod* iter, FILE* outFile, size_t* tagCnt, size_t* freeMemPtr) {
-   //This is a buffer function that allows to write call_next in all functions in codeGenSrc
-   Set_3 (tree, iter, outFile, tagCnt, freeMemPtr);
+   assert (tree != NULL);
+   assert (iter != NULL);
+   assert (outFile != NULL);
+
+
+
+    if (iter->type == EQ) {
+
+        assert (iter->size == 2);
+        assert (iter->next[0]->type == VAR);
+
+        Set_1 (tree, iter->next[1], outFile, tagCnt, freeMemPtr);
+
+        fprintf (outFile, "pop [%u]\n", iter->next[0]->next[0]->num);
+    }
+    else Set_3(tree, iter, outFile, tagCnt, freeMemPtr);
 }
 void Set_3 (Tree* tree, Nod* iter, FILE* outFile, size_t* tagCnt, size_t* freeMemPtr) {
    assert (tree != NULL);
@@ -320,19 +334,21 @@ void Set_24 (Tree* tree, Nod* iter, FILE* outFile, size_t* tagCnt, size_t* freeM
         fprintf (outFile, "push 0\nje :%u\n", *tagCnt);
         size_t whileEnd = *tagCnt;
         ++*tagCnt;
-
-        fprintf (outFile, "%u:\n", *tagCnt);
-
         size_t whileStart = *tagCnt;
         ++*tagCnt;
-
-        for (int i = 1; i < iter->size - (iter->next[iter->size - 1]->type == ELSE ? 1 : 0); i++) Set_1 (tree, iter->next[0], outFile, tagCnt, freeMemPtr);
-
-        fprintf (outFile, "push 0\nje :%u\n", *tagCnt);
         size_t elseEnd = *tagCnt;
         ++*tagCnt;
 
-        Set_1 (tree, iter->next[1], outFile, tagCnt, freeMemPtr);
+        fprintf (outFile, "%u:\n", whileStart);
+
+        Set_1 (tree, iter->next[0], outFile, tagCnt, freeMemPtr);
+
+        fprintf (outFile, "push 0\nje :%u\n", elseEnd);
+
+        for (int i = 1; i < iter->size - (iter->next[iter->size - 1]->type == ELSE ? 1 : 0); i++){
+            if (iter->next[i]->type == BREAK) fprintf (outFile, "jmp :%u\n", elseEnd);
+            else Set_1 (tree, iter->next[i], outFile, tagCnt, freeMemPtr);
+        }
 
         fprintf (outFile, "jmp :%u\n%u:\n", whileStart, whileEnd);
 

@@ -39,7 +39,7 @@ typedef double elem_t;
 struct Tag {
 
     char* name = NULL;
-    int ip = -1;
+    elem_t ip = -1;
 
     Tag (const char* _name, elem_t _ip) : ip (_ip) {
 
@@ -67,7 +67,7 @@ struct Tag {
         ELEM_T fst = POP;                 \
         if (condition) {                  \
                                           \
-            ip = (size_t) *cmdArg;           \
+            ip = (size_t) *cmdArg;        \
         }                                 \
     })
 

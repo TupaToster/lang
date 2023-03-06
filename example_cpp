@@ -1,9 +1,5 @@
 int t = 12;
-while (t < 14) {
+while (t < 18) {
 
-    t + 4;
-}
-else {
-
-    t - 4;
+    t = t + 4;
 }

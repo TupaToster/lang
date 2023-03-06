@@ -104,12 +104,13 @@ test: all main.o $(addprefix $(OBJDIR), $(LIB:.cpp=.o))
 	$(CC) $(CFLAGS) main.o $(addprefix $(OBJDIR), $(LIB:.cpp=.o)) -o test.exe
 	./test.exe
 
-sasm: all
+sasm:
 	./front.exe example_cpp tree.save
 	./back.exe tree.save lol.sasm
 
-a.wtf: sasm
+wtf: asm.exe cpu.exe
+	clear
 	./asm.exe lol.sasm
 	./cpu.exe a.wtf
 
-.PHONY: clean test a.wtf sasm
+.PHONY: clean test wtf sasm
