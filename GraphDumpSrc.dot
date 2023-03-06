@@ -1,0 +1,33 @@
+digraph Tree_0 {
+	graph [dpi = 200];
+	bgcolor = "#252525"
+	rankdir = TB
+	"Nod_0" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{ { | <prev> Prev = &lt;0000000000000000&gt; | } | Current = &lt;00000273e5fe1a34&gt; | Type = &lt;_BLANK&gt; | Value = &lt;(null)&gt; | {next[2] :  | { [0] | <next_0> &lt;00000273e5fe1aa4&gt; } | { [1] | <next_1> &lt;00000273e5fe1adc&gt; } | Cap = 4 }}"]
+	"Nod_1" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{ { | <prev> Prev = &lt;0000000000000000&gt; | } | Current = &lt;00000273e5fe1aa4&gt; | Type = &lt;_VAR&gt; | Value = &lt;t&gt; | {next[1] :  | { [0] | <next_0> &lt;00000273e5fe1a6c&gt; } | Cap = 4 }}"]
+	"Nod_2" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{ { | <prev> Prev = &lt;0000000000000000&gt; | } | Current = &lt;00000273e5fe1a6c&gt; | Type = &lt;int&gt; | Value = &lt;12&gt; | {next[0] :  | Cap = 4 }}"]
+	"Nod_3" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{ { | <prev> Prev = &lt;0000000000000000&gt; | } | Current = &lt;00000273e5fe1adc&gt; | Type = &lt;while&gt; | Value = &lt;&gt; | {next[2] :  | { [0] | <next_0> &lt;00000273e5fe1b4c&gt; } | { [1] | <next_1> &lt;00000273e5fe1bf4&gt; } | Cap = 4 }}"]
+	"Nod_4" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{ { | <prev> Prev = &lt;0000000000000000&gt; | } | Current = &lt;00000273e5fe1b4c&gt; | Type = &lt;&lt;&gt; | Value = &lt;&gt; | {next[2] :  | { [0] | <next_0> &lt;00000273e5fe1b14&gt; } | { [1] | <next_1> &lt;00000273e5fe1b84&gt; } | Cap = 4 }}"]
+	"Nod_5" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{ { | <prev> Prev = &lt;0000000000000000&gt; | } | Current = &lt;00000273e5fe1b14&gt; | Type = &lt;_VAR&gt; | Value = &lt;t&gt; | {next[1] :  | { [0] | <next_0> &lt;00000273e5fe1aa4&gt; } | Cap = 4 }}"]
+	"Nod_6" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{ { | <prev> Prev = &lt;0000000000000000&gt; | } | Current = &lt;00000273e5fe1b84&gt; | Type = &lt;_INT_CONST&gt; | Value = &lt;18&gt; | {next[0] :  | Cap = 4 }}"]
+	"Nod_7" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{ { | <prev> Prev = &lt;0000000000000000&gt; | } | Current = &lt;00000273e5fe1bf4&gt; | Type = &lt;=&gt; | Value = &lt;&gt; | {next[2] :  | { [0] | <next_0> &lt;00000273e5fe1bbc&gt; } | { [1] | <next_1> &lt;00000273e5fe1c64&gt; } | Cap = 4 }}"]
+	"Nod_8" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{ { | <prev> Prev = &lt;0000000000000000&gt; | } | Current = &lt;00000273e5fe1bbc&gt; | Type = &lt;_VAR&gt; | Value = &lt;t&gt; | {next[1] :  | { [0] | <next_0> &lt;00000273e5fe1aa4&gt; } | Cap = 4 }}"]
+	"Nod_9" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{ { | <prev> Prev = &lt;0000000000000000&gt; | } | Current = &lt;00000273e5fe1c64&gt; | Type = &lt;+&gt; | Value = &lt;&gt; | {next[2] :  | { [0] | <next_0> &lt;00000273e5fe1c2c&gt; } | { [1] | <next_1> &lt;00000273e5fe1c9c&gt; } | Cap = 4 }}"]
+	"Nod_10" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{ { | <prev> Prev = &lt;0000000000000000&gt; | } | Current = &lt;00000273e5fe1c2c&gt; | Type = &lt;_VAR&gt; | Value = &lt;t&gt; | {next[1] :  | { [0] | <next_0> &lt;00000273e5fe1aa4&gt; } | Cap = 4 }}"]
+	"Nod_11" [shape = "Mrecord", style = "filled", fillcolor = "#1ed5f2", label = "{ { | <prev> Prev = &lt;0000000000000000&gt; | } | Current = &lt;00000273e5fe1c9c&gt; | Type = &lt;_INT_CONST&gt; | Value = &lt;4&gt; | {next[0] :  | Cap = 4 }}"]
+	{rank = same;  Nod_0;}
+	{rank = same;  Nod_1; Nod_3;}
+	{rank = same;  Nod_2; Nod_4; Nod_7;}
+	{rank = same;  Nod_5; Nod_6; Nod_8; Nod_9;}
+	{rank = same;  Nod_10; Nod_11;}
+	"Nod_0":next_0 -> "Nod_1":prev [color = "#36f70f"];
+	"Nod_1":next_0 -> "Nod_2":prev [color = "#36f70f"];
+	"Nod_0":next_1 -> "Nod_3":prev [color = "#36f70f"];
+	"Nod_3":next_0 -> "Nod_4":prev [color = "#36f70f"];
+	"Nod_4":next_0 -> "Nod_5":prev [color = "#36f70f"];
+	"Nod_4":next_1 -> "Nod_6":prev [color = "#36f70f"];
+	"Nod_3":next_1 -> "Nod_7":prev [color = "#36f70f"];
+	"Nod_7":next_0 -> "Nod_8":prev [color = "#36f70f"];
+	"Nod_7":next_1 -> "Nod_9":prev [color = "#36f70f"];
+	"Nod_9":next_0 -> "Nod_10":prev [color = "#36f70f"];
+	"Nod_9":next_1 -> "Nod_11":prev [color = "#36f70f"];
+}

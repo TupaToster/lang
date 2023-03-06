@@ -72,8 +72,7 @@ void writeCode (Text* codeFile, char* outStr, Stack<Tag>* tags, size_t* Ip) {
 
         if (lBegin[0] == '#') continue;
 
-        while (lBegin < lEnd and sscanf (lBegin, " %[^: \n]: %n", wrd, &delta) == 1) {
-
+        while (lBegin < lEnd and sscanf (lBegin, " %[^: \n]:%n", wrd, &delta) == 1) {
 
             if (delta == 0) break;
             addTag (tags, wrd, Ip);
@@ -221,10 +220,6 @@ void printTag (Stack<Tag>* tags, char* name, char* outStr, size_t* Ip, size_t co
 }
 
 void addTag (Stack<Tag>* tags, const char* name, size_t* Ip) {
-
-    for (int i = 0; i < tags->getSize (); i++)
-        if (tags->getData ()[i].ip == (elem_t) *Ip)
-            return;
 
     tags->push (Tag (name, (elem_t)*Ip));
     // tags->getData ()[tags->getSize () - 1].name[strlen (tags->getData ()[tags->getSize () - 1].name) - 1] = '\0';

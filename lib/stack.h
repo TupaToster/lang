@@ -284,11 +284,11 @@ class Stack {
 
             flogprintf ("\t" "data : <br>");
             int sizeLog10 = ceil (log10 (size));
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < size; i++) {
 
                 flogprintf ( "\t\t" "data[%*d] : ", sizeLog10, i);
-                // flogprintf (getFormat (elem_t), data[i]);
-                flogprintf ("\"%s\" -> ip = %d", data[i].name, data[i].ip);
+                flogprintf (getFormat (elem_t), data[i]);
+                // flogprintf ("\"%s\" -> ip = %lg", data[i].name, data[i].ip);
                 flogprintf ("<br>");
             }
         }
@@ -298,35 +298,22 @@ class Stack {
 
     void DTOR () {
 
-        dump (*this);
-
         setPoison (&errCode);
-        dump (*this);
         setPoison (&canL);
-        dump (*this);
         setPoison (&canR);
-        dump (*this);
         setPoison (&hash);
-        dump (*this);
         setPoison (&size);
-        dump (*this);
-        setPoison (&cap);
 
         if (dataCanL != NULL) {
 
-        dump (*this);
             setPoison (dataCanL);
-        dump (*this);
-            for (; (void*) data <= (void*) dataCanR; data++) setPoison (data);
-        dump (*this);
+            for (int i = 0; i < cap; i++) setPoison (data + i);
             free (dataCanL);
-        dump (*this);
             setPoison (&dataCanL);
-        dump (*this);
             setPoison (&data);
-        dump (*this);
             setPoison (&dataCanR);
         }
+        setPoison (&cap);
     }
 
     void push (elem_t val) {

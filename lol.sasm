@@ -1,9 +1,32 @@
-jmp :2
-1: 3:
-dump
-dump
+push 12
+pop [0]
+push [0]
+push 18
+jb :0
+push 0
+jmp :1
+0:
+push 1
+1:
+push 0
+je :2
+3:
+push [0]
+push 18
+jb :5
+push 0
+jmp :6
+5:
+push 1
+6:
+push 0
+je :4
+push [0]
+push 4
 add
-sub
-mult
+pop [0]
+jmp :3
 2:
+4:
+dump
 hlt
