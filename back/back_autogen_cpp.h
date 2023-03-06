@@ -259,8 +259,21 @@ void Set_15 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTabl
     else Set_16(tree, iter, outFile, varTable, funcTable, tagCnt);
 }
 void Set_16 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt) {
-   //This is a buffer function that allows to write call_next in all functions in codeGenSrc
-   Set_17 (tree, iter, outFile, varTable, funcTable, tagCnt);
+   assert (tree != NULL);
+   assert (iter != NULL);
+   assert (outFile != NULL);
+   assert (varTable != NULL);
+   assert (funcTable != NULL);
+
+
+
+    if (iter->type == DOUBLE_CONST) {
+
+        assert (iter->size == 0);
+
+        fprintf (outFile, "push %lf\n", iter->val.LF);
+    }
+    else Set_17(tree, iter, outFile, varTable, funcTable, tagCnt);
 }
 void Set_17 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt) {
    //This is a buffer function that allows to write call_next in all functions in codeGenSrc
@@ -271,17 +284,8 @@ void Set_18 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTabl
    Set_19 (tree, iter, outFile, varTable, funcTable, tagCnt);
 }
 void Set_19 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt) {
-   assert (tree != NULL);
-   assert (iter != NULL);
-   assert (outFile != NULL);
-   assert (varTable != NULL);
-   assert (funcTable != NULL);
-
-
-
-    assert (iter->size < 2);
-    fprintf (outFile, "out\n");
-    if (iter->size == 1) Set_20(tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+   //This is a buffer function that allows to write call_next in all functions in codeGenSrc
+   Set_20 (tree, iter, outFile, varTable, funcTable, tagCnt);
 }
 void Set_20 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt) {
    //This is a buffer function that allows to write call_next in all functions in codeGenSrc
@@ -296,12 +300,82 @@ void Set_22 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTabl
    Set_23 (tree, iter, outFile, varTable, funcTable, tagCnt);
 }
 void Set_23 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt) {
-   //This is a buffer function that allows to write call_next in all functions in codeGenSrc
-   Set_24 (tree, iter, outFile, varTable, funcTable, tagCnt);
+   assert (tree != NULL);
+   assert (iter != NULL);
+   assert (outFile != NULL);
+   assert (varTable != NULL);
+   assert (funcTable != NULL);
+
+
+
+    if (iter->type == IF) {
+
+        assert (iter->size > 0);
+
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+
+        fprintf (outFile, "push 0\nje :%d\n", *tagCnt);
+        size_t ifEndTag = *tagCnt;
+        ++*tagCnt;
+
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
+
+        if (iter->next[iter->size - 1]->type == ELSE) {
+
+            fprintf (outFile, "jmp :%d\n%d:\n", *tagCnt, ifEndTag);
+            size_t elseEndTag = *tagCnt;
+            ++*tagCnt;
+
+            Set_1 (tree, iter->next[iter->size - 1]->next[0], outFile, varTable, funcTable, tagCnt);
+
+            fprintf (outFile, "%d:\n", elseEndTag);
+        }
+        else fprintf (outFile, "%d:\n", ifEndTag);
+    }
+    else Set_24(tree, iter, outFile, varTable, funcTable, tagCnt);
 }
 void Set_24 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt) {
-   //This is a buffer function that allows to write call_next in all functions in codeGenSrc
-   Set_25 (tree, iter, outFile, varTable, funcTable, tagCnt);
+   assert (tree != NULL);
+   assert (iter != NULL);
+   assert (outFile != NULL);
+   assert (varTable != NULL);
+   assert (funcTable != NULL);
+
+
+
+    if (iter->type == WHILE) {
+
+        assert (iter->size > 1);
+
+        Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+
+        fprintf (outFile, "push 0\nje :%u\n", *tagCnt);
+        size_t whileEnd = *tagCnt;
+        ++*tagCnt;
+
+        fprintf (outFile, "%u:\n", *tagCnt);
+
+        size_t whileStart = *tagCnt;
+        ++*tagCnt;
+
+        for (int i = 1; i < iter->size - (iter->next[iter->size - 1]->type == ELSE ? 1 : 0); i++) Set_1 (tree, iter->next[0], outFile, varTable, funcTable, tagCnt);
+
+        fprintf (outFile, "push 0\nje :%u\n", *tagCnt);
+        size_t elseEnd = *tagCnt;
+        ++*tagCnt;
+
+        Set_1 (tree, iter->next[1], outFile, varTable, funcTable, tagCnt);
+
+        fprintf (outFile, "jmp :%u\n%u:\n", whileStart, whileEnd);
+
+        if (iter->next[iter->size - 1]->type == ELSE) {
+
+            for (int i = 0; i < iter->next[iter->size - 1]->size; i++) Set_1 (tree, iter->next[iter->size - 1]->next[i], outFile, varTable, funcTable, tagCnt);
+        }
+
+        fprintf (outFile, "%u:\n", elseEnd);
+    }
+    else Set_25(tree, iter, outFile, varTable, funcTable, tagCnt);
 }
 void Set_25 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt) {
    //This is a buffer function that allows to write call_next in all functions in codeGenSrc
@@ -356,10 +430,6 @@ void Set_37 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTabl
    Set_38 (tree, iter, outFile, varTable, funcTable, tagCnt);
 }
 void Set_38 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt) {
-   //This is a buffer function that allows to write call_next in all functions in codeGenSrc
-   Set_39 (tree, iter, outFile, varTable, funcTable, tagCnt);
-}
-void Set_39 (Tree* tree, Nod* iter, FILE* outFile, NameTable* varTable, NameTable* funcTable, size_t* tagCnt) {
     // This is a buffer function that allows to write call_next in terminal functions in codeGenSrc
     printf ("Wrong token on ptr: %p, stopping Get\n\n", iter);
     dump (*tree);

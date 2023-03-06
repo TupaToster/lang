@@ -18,9 +18,7 @@ LIB=flog.cpp text.cpp syntax_autogen.cpp
 ASM=asm_funcs.cpp asm.cpp
 CPU=proc.cpp
 
-.INCLUDE_DIRS=$(DEPSDIR)
-
-all: codeGen.exe front.exe back.exe asm.exe cpu.exe
+all: $(DEPSDIR) $(OBJDIR) codeGen.exe front.exe back.exe asm.exe cpu.exe
 
 -include $(addprefix $(DEPSDIR),*.d)
 
@@ -76,9 +74,9 @@ $(OBJDIR)%.o: $(BACKDIR)%.cpp
 front.exe: $(addprefix $(OBJDIR),$(LIB:.cpp=.o) $(FRONT:.cpp=.o))
 	$(CC) $(CFLAGS) $^ -o $@
 
-codeGen.exe: $(DEPSDIR) $(OBJDIR) $(addprefix $(OBJDIR), $(CODEGEN:.cpp=.o)) codeGenerator/codeGenSrc
+codeGen.exe: $(addprefix $(OBJDIR), $(CODEGEN:.cpp=.o)) $(CODEGENDIR)codeGenSrc
 	$(CC) $(CFLAGS) $(addprefix $(OBJDIR), $(CODEGEN:.cpp=.o)) -o $@
-	./$@ $(CODEGENDIR)/codeGenSrc
+	./$@ $(CODEGENDIR)codeGenSrc
 
 cpu.exe: $(addprefix $(OBJDIR),$(LIB:.cpp=.o) $(CPU:.cpp=.o))
 	$(CC) $(CFLAGS) $^ -o $@
@@ -106,4 +104,12 @@ test: all main.o $(addprefix $(OBJDIR), $(LIB:.cpp=.o))
 	$(CC) $(CFLAGS) main.o $(addprefix $(OBJDIR), $(LIB:.cpp=.o)) -o test.exe
 	./test.exe
 
-.PHONY: clean
+sasm: all
+	./front.exe example_cpp tree.save
+	./back.exe tree.save lol.sasm
+
+a.wtf: sasm
+	./asm.exe lol.sasm
+	./cpu.exe a.wtf
+
+.PHONY: clean test a.wtf sasm
