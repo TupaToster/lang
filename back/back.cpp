@@ -12,11 +12,12 @@ void Set_G (char* fileName, char* outName) {
     dump (tree);
 
     size_t tagCnt = 0;
+    size_t freeMemPtr = 0;
 
     NameTable varTable;
     NameTable funcTable;
 
-    for (int i = 0; i < tree.getData ()->size; i++) Set_1 (&tree, tree.getData ()->next[i], outFile, &varTable, &funcTable, &tagCnt);
+    for (int i = 0; i < tree.getData ()->size; i++) Set_1 (&tree, tree.getData ()->next[i], outFile, &tagCnt, &freeMemPtr);
 
     fprintf (outFile, "hlt");
 }
