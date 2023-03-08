@@ -206,6 +206,15 @@ DEFCMD (DOUBLE_CONST, "_DOUBLE_CONST", 3, 1, {
     else call_next (tree, iter, outFile, tagCnt, freeMemPtr);
 })
 
+DEFCMD (OUT, "out", 3, 1, {
+
+    if (iter->type == OUT) {
+
+        fprintf (outFile, "push [0]\nout\n");
+    }
+    else call_next (tree, iter, outFile, tagCnt, freeMemPtr);
+})
+
 DEFCMD (CHAR_CONST, "_CHAR_CONST", 3, 0)
 
 DEFCMD (STR_CONST, "_STR_CONST", 3, 0)
@@ -536,7 +545,47 @@ DEFCMD (FOR, "for", 2, {
         }
     }
     else call_next (tree, iter, token, varTable, funcTable);
-}, 0)
+}, 1, {
+
+    if (iter->type == FOR) {
+
+        assert (iter->size > 3);
+
+        Set_1 (tree, iter->next[0], outFile, tagCnt, freeMemPtr);
+
+        Set_1 (tree, iter->next[1], outFile, tagCnt, freeMemPtr);
+
+        fprintf (outFile, "push 0\nje :%u\n", *tagCnt);
+        size_t forEnd = *tagCnt;
+        ++*tagCnt;
+        size_t forStart = *tagCnt;
+        ++*tagCnt;
+        size_t elseEnd = *tagCnt;
+        ++*tagCnt;
+
+        fprintf (outFile, "%u:\n", forStart);
+
+        Set_1 (tree, iter->next[1], outFile, tagCnt, freeMemPtr);
+
+        fprintf (outFile, "push 0\nje :%u\n", elseEnd);
+
+        for (int i = 3; i < iter->size and iter->next[i]->type != ELSE; i++)
+            Set_1 (tree, iter->next[i], outFile, tagCnt, freeMemPtr);
+
+        Set_1 (tree, iter->next[2], outFile, tagCnt, freeMemPtr);
+
+        fprintf (outFile, "jmp :%u\n%u:", forStart, forEnd);
+
+        if (iter->next[iter->size - 1]->type == ELSE) {
+
+            for (int i = 0; i < iter->next[iter->size - 1]->size; i++)
+                Set_1 (tree, iter->next[iter->size - 1]->next[i], outFile, tagCnt, freeMemPtr);
+        }
+
+        fprintf (outFile, "%u:\n", elseEnd);
+    }
+    else call_next (tree, iter, outFile, tagCnt, freeMemPtr);
+})
 
 DEFCMD (FUNC, "_FUNC", 2, {
 

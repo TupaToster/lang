@@ -73,5 +73,7 @@ void Set_36 (Tree* tree, Nod* iter, FILE* outFile, size_t* tagCnt, size_t* freeM
 
 void Set_37 (Tree* tree, Nod* iter, FILE* outFile, size_t* tagCnt, size_t* freeMemPtr);
 
-void Set_38 (Tree* tree, Nod*iter, FILE* outFile, size_t* tagCnt, size_t* freeMemPtr);
+void Set_38 (Tree* tree, Nod* iter, FILE* outFile, size_t* tagCnt, size_t* freeMemPtr);
+
+void Set_39 (Tree* tree, Nod*iter, FILE* outFile, size_t* tagCnt, size_t* freeMemPtr);
 
