@@ -44,8 +44,8 @@ class Stack {
     unsigned int   hash      = 0;    ///< hash value
     size_t         errCode   = ok;   ///< error code
     elem_t*        data      = NULL; ///< Ptr to data
-    size_t         cap       = 0;
-    size_t         size      = 0;
+    size_t         cap       = 0;    ///< max capacity
+    size_t         size      = 0;    ///< current size
     unsigned int*  dataCanL  = NULL; ///< left cannary of data
     unsigned int*  dataCanR  = NULL; ///< right cannary of data
     unsigned int   canR      = CANR; ///< right cannary of struct
