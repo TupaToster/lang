@@ -85,18 +85,18 @@ void writeCode (Text* codeFile, char* outStr, Stack<Tag>* tags, size_t* Ip) {
         #define GENERAL_CMD
 
         #define DEF_CMD(name, num, arg, code)\
-            if (strncmp (lBegin, #name, strlen (#name)) == 0) {\
-\
-                if (arg == 0) {\
-\
-                    if (outStr != NULL) outStr[*Ip] = num;\
-                    ++*Ip;\
-                }\
-                else {\
-\
-                    handleArg (codeFile, i, outStr, num, tags, Ip);\
-                }\
-            }\
+            if (strncmp (lBegin, #name, strlen (#name)) == 0) {     \
+                                                                    \
+                if (arg == 0) {                                     \
+                                                                    \
+                    if (outStr != NULL) outStr[*Ip] = num;          \
+                    ++*Ip;                                          \
+                }                                                   \
+                else {                                              \
+                                                                    \
+                    handleArg (codeFile, i, outStr, num, tags, Ip); \
+                }                                                   \
+            }                                                       \
             else
 
         #include "../lib/cmd.h"
